@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Rise | Sustainable Packaging</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;600;800&display=swap');
+
+        :root {
+            --sky-top: #87CEEB;
+            --sky-bottom: #E0F7FA;
+            --grass: #4CAF50;
+            --soil-top: #5D4037;
+            --soil-mid: #4E342E;
+            --soil-deep: #3E2723;
+            --root-color: #F5DEB3;
+            --cardboard: #cbbfa6;
+            --cardboard-dark: #b8aa8f;
+            --tape: rgba(240, 230, 200, 0.7);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            /* Landing shell settings */
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body.unboxed {
+            height: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        h1, h2, h3 {
+            font-family: 'DM Serif Display', serif;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* --- LANDING SHELL STYLES --- */
+        #landing-shell {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background-color: var(--cardboard);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+            transition: transform 1s cubic-bezier(0.6, 0.05, 0.01, 0.99);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        #flap-left {
+            left: 0;
+            border-right: 1px solid rgba(0,0,0,0.1);
+            transform-origin: left center;
+        }
+
+        #flap-right {
+            right: 0;
+            border-left: 1px solid rgba(0,0,0,0.1);
+            transform-origin: right center;
+        }
+
+        .corrugation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background: repeating-linear-gradient(90deg, transparent, transparent 2px, #000 2px, #000 4px);
+        }
+
+        #tape-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 100%;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.5s, transform 0.5s;
+            cursor: pointer; /* Indicate clickable */
+        }
+
+        .tape-strip {
+            width: 100%;
+            height: 100%;
+            background-color: var(--tape);
+            backdrop-filter: blur(2px);
+            border-left: 1px solid rgba(255,255,255,0.3);
+            border-right: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        #cutter-track {
+            position: absolute;
+            top: 5%;
+            bottom: 5%;
+            width: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25;
+            pointer-events: none;
+        }
+
+        #cutter-handle {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: #333;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s; /* Only animate transform, let JS handle top */
+        }
+
+        #cutter-handle:active {
+            cursor: grabbing;
+            transform: translateX(-50%) scale(1.1);
+        }
+        
+        #cutter-handle i {
+            color: #fff;
+            font-size: 24px;
+        }
+
+        #cut-progress-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            background: #333;
+            height: 0%;
+            z-index: 26;
+            transition: height 0.05s linear;
+        }
+
+        .box-label {
+            position: absolute;
+            top: 40%;
+            width: 300px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: rgba(62, 39, 35, 0.6);
+            font-weight: bold;
+            font-size: 1.5rem;
+            border: 4px solid rgba(62, 39, 35, 0.4);
+            padding: 20px;
+            transform: rotate(-5deg);
+            pointer-events: none;
+            z-index: 15;
+        }
+        #label-left { left: 10%; top: 30%; transform: rotate(-15deg); }
+        #label-right { right: 10%; top: 60%; transform: rotate(10deg); border-color: rgba(46, 125, 50, 0.4); color: rgba(46, 125, 50, 0.6);}
+
+        .instruction-text {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 40;
+            pointer-events: none;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        /* --- OPENED STATE --- */
+        body.unboxed #flap-left { transform: translateX(-100%); }
+        body.unboxed #flap-right { transform: translateX(100%); }
+        body.unboxed #tape-container, 
+        body.unboxed #cutter-track, 
+        body.unboxed #cutter-handle,
+        body.unboxed .box-label,
+        body.unboxed .instruction-text {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        body.unboxed #landing-shell {
+            pointer-events: none;
+            transition: visibility 0s 1s;
+            visibility: hidden;
+        }
+
+        /* --- EXISTING STYLES --- */
+        .layer { position: relative; width: 100%; overflow: hidden; }
+
+        #surface {
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .cityscape {
+            position: absolute;
+            bottom: 38vh;
+            right: 0;
+            width: 50%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            gap: 2px;
+            z-index: 0;
+            opacity: 0.9;
+            padding-right: 2rem;
+        }
+
+        .building {
+            background: #546E7A;
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 5px;
+            box-shadow: -5px 0 10px rgba(0,0,0,0.1) inset;
+        }
+
+        .building-tall { background: #37474F; width: 70px; z-index: -1; }
+        
+        .sun {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 80px;
+            height: 80px;
+            background: #FDB813;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #FFEB3B, 0 0 80px #FDB813;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        .home {
+            width: 0; height: 0; 
+            border-left: 35px solid transparent; border-right: 35px solid transparent;
+            border-bottom: 35px solid #455A64;
+            position: relative; margin-bottom: -1px;
+        }
+        .home::after {
+            content: ''; position: absolute; top: 35px; left: -25px;
+            width: 50px; height: 40px; background: #607D8B;
+        }
+
+        .window {
+            width: 10px; height: 12px; background: #FFEB3B; margin: 4px;
+            display: inline-block; box-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
+        }
+
+        .falling-box {
+            position: absolute; width: 14px; height: 14px;
+            background: #8D6E63; border: 1px solid #5D4037;
+            z-index: 5; animation: fall 4s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(40vh) rotate(360deg); opacity: 0; }
+        }
+
+        .trash-hill {
+            position: absolute; bottom: 0; width: 100%; height: 50vh;
+            background: #795548; clip-path: ellipse(150% 100% at 50% 100%);
+            display: flex; justify-content: center; align-items: flex-end; z-index: 2;
+        }
+        
+        .grass-cap {
+            position: absolute; bottom: 45vh; width: 120%; height: 15vh;
+            background: var(--grass); border-radius: 50%; z-index: 1;
+        }
+
+        #underground-mix {
+            height: 100vh;
+            background: linear-gradient(to bottom, var(--soil-top), var(--soil-mid));
+            position: relative; color: #fff;
+        }
+
+        #who-we-are {
+            height: 70vh; background: var(--soil-mid); position: relative; color: #fff;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px;
+        }
+
+        #industry-impact {
+            height: 80vh; background: linear-gradient(to bottom, var(--soil-mid), #453029);
+            position: relative; color: #fff;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;
+        }
+
+        #underground-pure {
+            height: 100vh; background: linear-gradient(to bottom, #453029, var(--soil-deep));
+            position: relative; color: #fff;
+        }
+
+        #rebirth {
+            height: 100vh; background: var(--soil-deep);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; color: #fff;
+        }
+
+        .debris { position: absolute; opacity: 0.6; transition: transform 0.5s ease-out; }
+        .root-svg { position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 100%; width: 100%; pointer-events: none; z-index: 5; }
+        
+        .root-path {
+            fill: none; stroke: var(--root-color); stroke-width: 4; stroke-linecap: round;
+            stroke-dasharray: 2000; stroke-dashoffset: 2000; transition: stroke-dashoffset 1s ease-out;
+            filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.2));
+        }
+
+        .trash-svg { fill: #7f8c8d; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+
+        .box-container { position: relative; width: 200px; height: 200px; perspective: 1000px; margin-top: 50px; z-index: 10; }
+        .box { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(30deg); transition: transform 1s ease; }
+        .box:hover { transform: rotateX(-10deg) rotateY(10deg) scale(1.05); }
+        
+        /* Restored missing face class */
+        .face { 
+            position: absolute; 
+            width: 200px; 
+            height: 200px; 
+            background: #d7ccc8; 
+            border: 2px solid #a1887f; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2rem; 
+            font-weight: bold; 
+            color: #5d4037; 
+            opacity: 0.9; 
+        }
+
+        .front { transform: translateZ(100px); background: #D7CCC8; }
+        .back { transform: rotateY(180deg) translateZ(100px); background: #BCAAA4; }
+        .left { transform: rotateY(-90deg) translateZ(100px); background: #D7CCC8; }
+        .right { transform: rotateY(90deg) translateZ(100px); background: #BCAAA4; }
+        
+        /* Fixed Top Face Logic for proper Hinge */
+        .top { 
+            transform-origin: top; 
+            transform: translateZ(-100px) rotateX(-90deg); 
+            background: #A1887f; 
+            transition: transform 1s ease-in-out; 
+        }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); background: #5D4037; }
+
+        /* Open state: Hinge back from the top edge */
+        .box-container.open .top { 
+            transform: translateZ(-100px) rotateX(-225deg); 
+        }
+
+        .plant-sprout {
+            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0);
+            transform-origin: bottom center; transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 0; width: 150px;
+        }
+        .box-container.open + .plant-sprout { transform: translateX(-50%) scale(1); }
+
+        .mini-box-wrapper { position: absolute; width: 80px; height: 80px; perspective: 500px; cursor: pointer; z-index: 30; transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .mini-box { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-15deg) rotateY(15deg); transition: transform 0.5s ease-out, opacity 0.5s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .mini-box:hover { transform: rotateX(-10deg) rotateY(10deg) scale(1.05); }
+        .mini-box.popped { opacity: 0; transform: scale(0.5) rotateX(0) rotateY(0); }
+        .mini-face { position: absolute; width: 80px; height: 80px; background: #d7ccc8; border: 1px solid #a1887f; opacity: 0.9; }
+        .mini-front { transform: translateZ(40px); background: #D7CCC8; }
+        .mini-back { transform: rotateY(180deg) translateZ(40px); background: #BCAAA4; }
+        .mini-left { transform: rotateY(-90deg) translateZ(40px); background: #D7CCC8; }
+        .mini-right { transform: rotateY(90deg) translateZ(40px); background: #BCAAA4; }
+        .mini-top { transform: rotateX(90deg) translateZ(40px); background: #A1887f; }
+        .mini-bottom { transform: rotateX(-90deg) translateZ(40px); background: #5D4037; }
+        .mini-plant { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) scale(0); transform-origin: bottom center; transition: transform 3s ease-out; width: 100px; height: 100px; opacity: 0; pointer-events: none; }
+        .mini-plant.grown { transform: translateX(-50%) scale(1); opacity: 1; }
+
+        .btn-grow { background: #4CAF50; color: white; padding: 15px 40px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-transform: uppercase; text-decoration: none; z-index: 50; border: none; cursor: pointer; }
+        .btn-grow:hover { background: #388E3C; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4); }
+        
+        nav { position: fixed; top: 0; width: 100%; padding: 30px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; transition: all 0.5s ease; background: transparent; }
+        nav::before { display: none; }
+        nav.scrolled { background-image: none; background-color: rgba(27, 94, 32, 0.95); backdrop-filter: blur(5px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 20px; }
+        nav.scrolled button, nav.scrolled a { color: white !important; }
+        nav.scrolled::before { opacity: 0; }
+        
+        .logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: #333; }
+        .scroll-down { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; color: #555; cursor: pointer; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);} 40% {transform: translateY(-20px) translateX(-50%);} 60% {transform: translateY(-10px) translateX(-50%);} }
+
+        .product-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .product-image-container { height: 250px; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
+        .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .product-card:hover .product-image { transform: scale(1.1); }
+
+        .stat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2rem; border-radius: 1rem; transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.15); }
+
+    </style>
+</head>
+<body>
+
+    <!-- LANDING SHELL -->
+    <div id="landing-shell">
+        <div id="flap-left" class="flap">
+            <div class="box-label" id="label-left">ROOT RISE<br><span style="font-size:0.8em">FRAGILE: LIVING CONTENTS</span></div>
+            <div class="corrugation"></div>
+        </div>
+        <div id="flap-right" class="flap">
+            <div class="box-label" id="label-right">SUSTAINABLE<br>PACKAGING</div>
+            <div class="corrugation"></div>
+        </div>
+        
+        <div id="tape-container" onclick="autoUnbox()">
+            <div class="tape-strip"></div>
+        </div>
+
+        <div id="cut-progress-line"></div>
+
+        <div id="cutter-track"></div>
+        
+        <!-- Instruction Text -->
+        <div class="instruction-text">
+            <i class="fas fa-arrow-down animate-bounce"></i> Drag or Click to Open
+        </div>
+
+        <div id="cutter-handle">
+            <i class="fas fa-box-open"></i>
+        </div>
+    </div>
+
+    <nav id="navbar">
+        <div class="logo max-w-7xl mx-auto w-full px-4 flex justify-between items-center relative z-10">
+            <img src="logo.png" alt="Root Rise Logo" class="h-32 object-contain transition-all duration-500">
+            <div class="flex gap-6 items-center">
+                <button onclick="toggleShowcase()" class="text-sm font-semibold text-green-900 hover:text-green-600 transition uppercase tracking-wide">Product Showcase</button>
+                <a href="#rebirth" class="text-sm font-semibold text-green-900 hover:text-green-600 transition uppercase tracking-wide">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PRODUCT SHOWCASE MODAL -->
+    <div id="product-showcase" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto transition-opacity duration-300 flex flex-col">
+        <div class="container mx-auto px-6 py-12">
+            <div class="flex justify-between items-center mb-12">
+                <div>
+                    <h2 class="text-5xl font-serif text-green-900 mb-2">Our Collection</h2>
+                    <p class="text-gray-500">Sustainable solutions for a greener tomorrow.</p>
+                </div>
+                <button onclick="toggleShowcase()" class="text-gray-500 hover:text-red-500 text-4xl transition transform hover:rotate-90">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div class="product-card"><div class="product-image-container"><img src="pd1.png" alt="Seed Box" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">The Sprout Box</h3><p class="text-gray-600 text-sm mb-4">A sturdy corrugated box infused with wildflower seeds. Just plant the whole box after use.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Wildflowers</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">Heavy Duty</span></div></div></div>
+                <div class="product-card"><div class="product-image-container"><img src="pd2.png" alt="Mycelium Inserts" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">Myco-Protect Inserts</h3><p class="text-gray-600 text-sm mb-4">Custom-molded protective packaging grown from mushroom roots. Replaces Styrofoam entirely.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Compostable</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">Shock Absorbent</span></div></div></div>
+                <div class="product-card"><div class="product-image-container"><img src="pd3.png" alt="Plantable Mailer" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">Bloom Mailer</h3><p class="text-gray-600 text-sm mb-4">Flexible, water-resistant mailers embedded with basil and tomato seeds for your home garden.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Herb Garden</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">Flexible</span></div></div></div>
+                <div class="product-card"><div class="product-image-container"><img src="pd4.jpeg" alt="Coffee Cup" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">Zero-Waste Cup</h3><p class="text-gray-600 text-sm mb-4">Fully biodegradable cups lined with natural PLA. Turns into nutrient-rich mulch in 60 days.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Hot Safe</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">No Plastic</span></div></div></div>
+                <div class="product-card"><div class="product-image-container"><img src="pd5.png" alt="Void Fill" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">Eco-Peanuts</h3><p class="text-gray-600 text-sm mb-4">Starch-based packing peanuts that dissolve in water instantly. Safe for pets and the planet.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Water Soluble</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">Lightweight</span></div></div></div>
+                <div class="product-card"><div class="product-image-container"><img src="pd6.png" alt="Custom Label" class="product-image"></div><div class="p-6"><h3 class="text-2xl font-serif text-green-800 mb-2">Living Labels</h3><p class="text-gray-600 text-sm mb-4">Stickers and labels printed with soy ink on seed paper. Branding that blooms.</p><div class="flex gap-2"><span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">Customizable</span><span class="bg-stone-100 text-stone-800 text-xs px-3 py-1 rounded-full">Adhesive</span></div></div></div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                <p class="text-2xl font-serif text-gray-800 mb-6">Interested in a custom order?</p>
+                <button onclick="toggleShowcase(); document.getElementById('contact-modal').classList.remove('hidden');" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition">GET A QUOTE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: THE PROBLEM (SURFACE) -->
+    <section id="surface" class="layer">
+        <div class="sun"></div>
+
+        <div class="absolute top-[20%] left-[5%] z-20 w-[40%]" id="intro-text">
+            <h1 class="text-5xl md:text-7xl text-gray-800 mb-6 drop-shadow-sm text-left">Packaging that <br>Lives On.</h1>
+            <p class="text-xl text-gray-700 font-light text-left">We turn litter into life. Scroll down to see how we transform waste into nature.</p>
+        </div>
+
+        <!-- Cityscape -->
+        <div class="cityscape">
+            <div class="falling-box" style="right: 10%; left: auto; animation-delay: 0.2s;"></div>
+            <div class="falling-box" style="right: 25%; left: auto; animation-delay: 1.5s;"></div>
+            <div class="falling-box" style="right: 40%; left: auto; animation-delay: 0.8s;"></div>
+            <div class="falling-box" style="right: 30%; left: auto; animation-delay: 2.2s;"></div>
+            <div class="falling-box" style="right: 15%; left: auto; animation-delay: 3.5s;"></div>
+            
+            <div class="building" style="height: 180px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+            <div class="home"></div>
+            <div class="building building-tall" style="height: 240px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+             <div class="building" style="height: 160px; background: #607D8B;"><div class="window"></div><div class="window"></div><div class="window"></div></div>
+            <div class="home"></div>
+            <div class="building building-tall" style="height: 280px; width: 90px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+             <div class="building" style="height: 140px;"><div class="window"></div><div class="window"></div></div>
+            <div class="home"></div>
+            <div class="building" style="height: 200px; background: #455A64;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+        </div>
+
+        <!-- The Trash Hill -->
+        <div class="trash-hill">
+            <div class="absolute bottom-0 w-full h-full overflow-hidden flex justify-center items-end">
+                <svg class="trash-svg w-16 h-16 absolute bottom-12 left-[40%] rotate-12" viewBox="0 0 24 24"><path d="M4 6h16v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm2-2h12V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v1z"/></svg>
+                <svg class="trash-svg w-12 h-24 absolute bottom-8 left-[55%] -rotate-12" viewBox="0 0 24 24"><path d="M7 2h10v4H7V2zm2 4h6l2 3v13H7V9l2-3z"/></svg>
+                <svg class="trash-svg w-20 h-20 absolute bottom-4 left-[48%] rotate-45" viewBox="0 0 24 24"><path d="M3 4l9-2 9 2v14l-9 2-9-2V4zm2 1.5v11.8l7 1.5 7-1.5V5.5L12 4 5 5.5z"/></svg>
+                <svg class="trash-svg w-24 h-24 absolute bottom-2 left-[30%] rotate-6" viewBox="0 0 24 24"><path d="M6 2h12l2 5-2 13H6L4 7l2-5zm2 5v10h8V7H8z"/></svg>
+                 <svg class="trash-svg w-14 h-14 absolute bottom-6 right-[35%] -rotate-45" viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/></svg>
+            </div>
+        </div>
+        
+        <div class="grass-cap"></div>
+        <div class="scroll-down"><i class="fas fa-chevron-down text-2xl"></i></div>
+    </section>
+
+    <!-- SECTION 2, 3, 4, etc... (Same structure as before) -->
+    <section id="underground-mix" class="layer">
+        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path class="root-path" id="root-path-1" d="M50,0 C50,20 40,30 45,50 C50,70 60,80 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-1b" d="M50,0 C55,15 65,25 60,40 C55,60 45,70 50,90" style="opacity:0.5; stroke-width: 2" vector-effect="non-scaling-stroke"/></svg>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl w-full z-10 mx-auto px-6 py-20">
+            <div class="order-2 md:order-1 relative h-64 md:h-auto"><div class="debris absolute top-0 left-10 text-gray-400 text-4xl"><i class="fas fa-box-open"></i></div><div class="debris absolute top-20 right-20 text-gray-500 text-2xl"><i class="fas fa-recycle"></i></div><div class="debris absolute bottom-10 left-1/3 text-stone-400 text-3xl"><i class="fas fa-leaf"></i></div><div class="debris absolute top-1/2 right-10 text-gray-400 text-xl opacity-50"><i class="fas fa-wine-bottle"></i></div></div>
+            <div class="order-1 md:order-2 text-left text-white opacity-0 transition-opacity duration-1000 fade-in-trigger"><h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3]">Enriched Soil, Not Landfill.</h2><p class="text-lg leading-relaxed text-gray-200">Standard packaging lingers for centuries. Root Rise packaging is infused with mycelium and native seeds. When discarded, it doesn't just disappear—it feeds the earth.</p><div class="mt-6 flex items-center space-x-4"><div class="w-12 h-12 rounded-full bg-[#F5DEB3] text-brown-900 flex items-center justify-center font-bold"><i class="fas fa-seedling text-[#5D4037]"></i></div><span class="text-[#F5DEB3] font-semibold">Mulch Transitioning</span></div></div>
+        </div>
+    </section>
+
+    <section id="who-we-are">
+        <div class="max-w-4xl mx-auto z-10 fade-in-trigger"><div class="mb-6 flex justify-center text-[#F5DEB3] text-5xl"><i class="fas fa-users-cog"></i></div><h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3] font-serif">Who We Are</h2><p class="text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto">We are a team of design students passionate about sustainability. Our goal is to improve biodiversity by cleverly utilizing human habits of littering. Instead of fighting the inevitable, we design for it—turning waste into opportunities for life to flourish.</p><div class="mt-8 flex justify-center gap-4"><div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div><div class="w-16 h-1 bg-[#4CAF50] rounded-full"></div><div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div></div></div>
+    </section>
+
+    <section id="industry-impact">
+        <div class="max-w-6xl mx-auto z-10 w-full"><div class="text-center mb-12 fade-in-trigger"><h2 class="text-4xl md:text-5xl mb-4 text-[#F5DEB3] font-serif">Global Adoption</h2><p class="text-xl text-gray-300">Industries are shifting. The future of packaging is smart, alive, and circular.</p></div><div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in-trigger"><div class="stat-card text-center"><div class="text-5xl text-[#4CAF50] mb-4"><i class="fas fa-chart-line"></i></div><h3 class="text-3xl font-bold text-white mb-2">250%</h3><p class="text-gray-300">Growth in Bio-Packaging Demand</p></div><div class="stat-card text-center"><div class="text-5xl text-[#81C784] mb-4"><i class="fas fa-globe-americas"></i></div><h3 class="text-3xl font-bold text-white mb-2">120+</h3><p class="text-gray-300">Countries Banning Single-Use Plastics</p></div><div class="stat-card text-center"><div class="text-5xl text-[#F5DEB3] mb-4"><i class="fas fa-hand-holding-heart"></i></div><h3 class="text-3xl font-bold text-white mb-2">85%</h3><p class="text-gray-300">Consumers Prefer Sustainable Brands</p></div></div></div>
+    </section>
+
+    <section id="underground-pure" class="layer">
+        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path class="root-path" id="root-path-2" d="M50,0 C40,10 20,30 30,50 C40,70 50,60 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-2a" d="M50,20 C60,30 80,40 70,60 C60,80 55,90 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-2b" d="M30,50 C20,60 10,70 15,90" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/><path class="root-path" id="root-path-2c" d="M70,60 C80,70 90,80 85,95" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/></svg>
+        <div class="text-center max-w-3xl z-10 mx-auto px-6 py-20 opacity-0 transition-opacity duration-1000 fade-in-trigger"><h2 class="text-4xl md:text-6xl mb-8 text-[#F5DEB3]">From Waste to Roots.</h2><p class="text-xl text-gray-300 mb-10">As the packaging dissolves, our embedded seed technology activates. The soil becomes cleaner, enriched by the biodegradable materials, providing a healthy foundation for new life.</p><div class="grid grid-cols-3 gap-8 text-center"><div><h3 class="text-3xl font-bold text-[#4CAF50]">100%</h3><p class="text-sm uppercase tracking-widest mt-2">Biodegradable</p></div><div><h3 class="text-3xl font-bold text-[#4CAF50]">0%</h3><p class="text-sm uppercase tracking-widest mt-2">Toxins</p></div><div><h3 class="text-3xl font-bold text-[#4CAF50]">Native</h3><p class="text-sm uppercase tracking-widest mt-2">Seed Varieties</p></div></div></div>
+    </section>
+
+    <section id="rebirth" class="layer">
+        <div class="text-center mb-4 z-20 opacity-0 fade-in-trigger transition-opacity duration-1000"><h2 class="text-4xl md:text-5xl text-white">The Cycle Complete</h2><p class="text-green-200 mt-2">Your package has arrived.</p></div>
+        <div class="relative z-10 mt-10"><div class="plant-sprout" id="final-plant"><svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q50,50 50,30" stroke="#4CAF50" stroke-width="4" fill="none" /><path d="M50,50 Q20,40 20,20 Q40,20 50,50" fill="#66BB6A" /><path d="M50,40 Q80,30 80,10 Q60,10 50,40" fill="#81C784" /><circle cx="50" cy="20" r="8" fill="#FFF176" /></svg></div><div class="box-container" id="package-box"><div class="box"><div class="face front"><i class="fas fa-recycle opacity-50"></i></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div></div></div>
+        <div class="mt-20 z-20 flex flex-col md:flex-row items-center gap-6"><button onclick="toggleContact()" class="btn-grow cursor-pointer">Start Eco Journey</button><button onclick="toggleShowcase()" class="bg-purple-600 text-white padding-15px-40px px-10 py-4 rounded-full font-semibold tracking-wide transition-all duration-300 shadow-lg hover:bg-purple-700 hover:-translate-y-1 uppercase">Product Showcase</button></div>
+        <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center"><div class="bg-white text-gray-800 p-8 rounded-lg max-w-md w-full m-4 relative"><button onclick="toggleContact()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button><h3 class="text-3xl font-serif text-green-800 mb-4">Get in Touch</h3><p class="mb-6 text-gray-600">Ready to switch to Root Rise packaging? Send us a note.</p><form class="space-y-4" onsubmit="event.preventDefault(); alert('Thank you! We will reach out shortly.'); toggleContact();"><input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"><input type="email" placeholder="Company Email" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"><textarea placeholder="Tell us about your packaging needs" rows="3" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"></textarea><button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 font-bold transition">SEND MESSAGE</button></form></div></div>
+        <footer class="absolute bottom-0 w-full text-center p-4 text-gray-500 text-xs">&copy; 2023 Root Rise Inc. All Rights Reserved.</footer>
+    </section>
+
+    <div id="mini-boxes-container" class="absolute top-0 left-0 w-full h-full pointer-events-none z-30 overflow-hidden"></div>
+
+    <script>
+        // Toggle Functions
+        function toggleContact() {
+            const modal = document.getElementById('contact-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleShowcase() {
+            const showcase = document.getElementById('product-showcase');
+            showcase.classList.toggle('hidden');
+        }
+
+        // --- CUTTER INTERACTION LOGIC (FIXED) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const cutterHandle = document.getElementById('cutter-handle');
+            const cutProgressLine = document.getElementById('cut-progress-line');
+            const tapeContainer = document.getElementById('tape-container');
+            const navbar = document.getElementById('navbar');
+            const logo = navbar.querySelector('img'); 
+            
+            let isDragging = false;
+
+            // Mouse Events
+            cutterHandle.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                handleDrag(e.clientY);
+            });
+
+            document.addEventListener('mouseup', () => { isDragging = false; });
+
+            // Touch Events
+            cutterHandle.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                e.preventDefault(); 
+            }, { passive: false });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault(); 
+                handleDrag(e.touches[0].clientY);
+            }, { passive: false });
+
+            document.addEventListener('touchend', () => { isDragging = false; });
+
+            function handleDrag(clientY) {
+                const containerRect = tapeContainer.getBoundingClientRect();
+                // Calculate newY relative to the top of the tape container
+                // subtracting 30 centers the handle (which is 60px high)
+                let newY = clientY - containerRect.top - 30;
+
+                // Bounds checking
+                const maxVal = containerRect.height - 60;
+                if (newY < 0) newY = 0;
+                if (newY > maxVal) newY = maxVal;
+
+                // Update UI - Snapping directly to mouse/finger position
+                cutterHandle.style.top = `${newY}px`;
+                const percentage = (newY / maxVal) * 100;
+                cutProgressLine.style.height = `${percentage}%`;
+
+                // Check if complete (Lowered threshold to 85%)
+                if (percentage > 85) {
+                    unboxWebsite();
+                    isDragging = false;
+                }
+            }
+
+            // Initialization
+            createMiniBoxes();
+            setupScrollAnimations(logo);
+        });
+
+        // Helper for explicit click to open (Fallback)
+        function autoUnbox() {
+            unboxWebsite();
+        }
+
+        function unboxWebsite() {
+            const body = document.body;
+            if (body.classList.contains('unboxed')) return;
+            
+            body.classList.add('unboxed');
+            
+            // Trigger scroll event to ensure animations start correctly
+            setTimeout(() => {
+                window.dispatchEvent(new Event('scroll'));
+            }, 100);
+        }
+
+        // --- ANIMATION LOGIC ---
+        function growPlant(element) {
+            const box = element.querySelector('.mini-box');
+            const plant = element.querySelector('.mini-plant');
+            
+            if (box.classList.contains('popped')) return;
+
+            box.classList.add('popped');
+            setTimeout(() => {
+                plant.classList.add('grown');
+            }, 300);
+        }
+
+        function createMiniBoxes() {
+            const container = document.getElementById('mini-boxes-container');
+            // Wait for layout to stabilize
+            setTimeout(() => {
+                const totalHeight = Math.max(
+                    document.body.scrollHeight, document.documentElement.scrollHeight,
+                    document.body.offsetHeight, document.documentElement.offsetHeight,
+                    document.body.clientHeight, document.documentElement.clientHeight
+                );
+                
+                const surfaceHeight = window.innerHeight; 
+                const boxCount = 15; 
+
+                for (let i = 0; i < boxCount; i++) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'mini-box-wrapper';
+                    wrapper.onclick = function() { 
+                        growPlant(this); 
+                        setTimeout(() => {
+                            const label = this.querySelector('.plant-label');
+                            if(label) label.style.opacity = '1'; 
+                            if(label) label.style.transition = 'opacity 1s';
+                        }, 500);
+                    };
+                    wrapper.style.pointerEvents = 'auto';
+
+                    const minTop = surfaceHeight + 100; 
+                    const maxTop = totalHeight - 300;
+                    
+                    const verticalPos = Math.random() * (maxTop - minTop) + minTop;
+                    const side = Math.random() > 0.5 ? 'left' : 'right';
+                    const horizontalOffset = Math.random() * 15; 
+
+                    wrapper.style.position = 'absolute';
+                    wrapper.style.top = `${verticalPos}px`;
+                    
+                    if (side === 'left') {
+                        wrapper.style.left = `${horizontalOffset}%`;
+                    } else {
+                        wrapper.style.right = `${horizontalOffset}%`;
+                    }
+                    
+                    const randomScale = 0.6 + Math.random() * 0.5;
+                    wrapper.style.transform = `scale(${randomScale})`;
+
+                    const plants = [
+                        `<svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q50,50 50,20" stroke="#4CAF50" stroke-width="3" fill="none" /><path d="M50,70 Q30,60 25,50" stroke="#4CAF50" stroke-width="2" fill="none" /><path d="M50,60 Q70,50 75,40" stroke="#4CAF50" stroke-width="2" fill="none" /><circle cx="25" cy="50" r="7" fill="#F44336" /><circle cx="75" cy="40" r="7" fill="#F44336" /><text x="50" y="10" font-size="10" text-anchor="middle" fill="#F44336" font-weight="bold" opacity="0" class="plant-label">Tomato</text></svg>`,
+                        `<svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q45,70 50,40" stroke="#4CAF50" stroke-width="3" fill="none" /><path d="M50,80 Q20,70 10,60 Q35,60 50,80" fill="#66BB6A" /><path d="M50,60 Q80,50 90,40 Q65,40 50,60" fill="#81C784" /><ellipse cx="35" cy="95" rx="9" ry="7" fill="#8D6E63" /><text x="50" y="20" font-size="10" text-anchor="middle" fill="#8D6E63" font-weight="bold" opacity="0" class="plant-label">Potato</text></svg>`,
+                        `<svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q50,60 50,40" stroke="#795548" stroke-width="4" fill="none" /><path d="M50,50 Q20,40 20,20 Q40,20 50,50" fill="#4CAF50" /><path d="M50,45 Q80,35 80,15 Q60,15 50,45" fill="#66BB6A" /><circle cx="50" cy="30" r="12" fill="#D32F2F" /><text x="50" y="0" font-size="10" text-anchor="middle" fill="#D32F2F" font-weight="bold" opacity="0" class="plant-label">Apple</text></svg>`,
+                        `<svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q40,80 45,60" stroke="#4CAF50" stroke-width="3" fill="none" /><path d="M45,60 Q25,50 15,40 Q35,40 45,60" fill="#66BB6A" /><path d="M45,70 Q65,80 75,60 Q65,60 45,70" fill="#81C784" /><circle cx="60" cy="90" r="14" fill="#2E7D32" /><text x="50" y="20" font-size="10" text-anchor="middle" fill="#2E7D32" font-weight="bold" opacity="0" class="plant-label">Watermelon</text></svg>`
+                    ];
+                    const randomPlantSVG = plants[Math.floor(Math.random() * plants.length)];
+
+                    wrapper.innerHTML = `
+                        <div class="mini-box">
+                            <div class="mini-face mini-front"></div>
+                            <div class="mini-face mini-back"></div>
+                            <div class="mini-face mini-right"></div>
+                            <div class="mini-face mini-left"></div>
+                            <div class="mini-face mini-top"></div>
+                            <div class="mini-face mini-bottom"></div>
+                        </div>
+                        <div class="mini-plant">
+                            ${randomPlantSVG}
+                        </div>
+                    `;
+                    container.appendChild(wrapper);
+                }
+            }, 100);
+        }
+
+        function setupScrollAnimations(logo) {
+            const debris = document.querySelectorAll('.debris');
+            const paths = document.querySelectorAll('.root-path');
+            const fadeElements = document.querySelectorAll('.fade-in-trigger');
+            const boxContainer = document.getElementById('package-box');
+            const navbar = document.getElementById('navbar');
+
+            // Randomize debris position slightly
+            debris.forEach(d => {
+                const randomX = Math.random() * 20 - 10;
+                d.style.transform = `translate(${randomX}px, 0)`;
+            });
+
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                const windowHeight = window.innerHeight;
+
+                // Navbar Transition
+                if (scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                    if (logo) {
+                        logo.classList.remove('h-32');
+                        logo.classList.add('h-16');
+                    }
+                } else {
+                    navbar.classList.remove('scrolled');
+                    if (logo) {
+                        logo.classList.remove('h-16');
+                        logo.classList.add('h-32');
+                    }
+                }
+
+                // 1. Debris Parallax
+                debris.forEach((d, index) => {
+                    const speed = (index + 1) * 0.2;
+                    d.style.transform = `translateY(-${scrollY * speed * 0.1}px) rotate(${scrollY * 0.1}deg)`;
+                });
+
+                // 2. Root Growth Animation
+                paths.forEach(path => {
+                    const box = path.getBoundingClientRect();
+                    const start = windowHeight * 0.8;
+                    const end = windowHeight * 0.2;
+                    
+                    let percentage = (start - box.top) / (start - end);
+                    if (percentage < 0) percentage = 0;
+                    if (percentage > 1) percentage = 1;
+
+                    const length = 2000;
+                    const drawLength = length * percentage;
+                    
+                    path.style.strokeDashoffset = length - drawLength;
+                });
+
+                // 3. Fade In Text Sections
+                fadeElements.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < windowHeight * 0.75) {
+                        el.style.opacity = 1;
+                        el.style.transform = 'translateY(0)';
+                    } else {
+                        el.style.opacity = 0;
+                        el.style.transform = 'translateY(20px)';
+                    }
+                });
+
+                // 4. Box Opening Animation
+                const boxRect = boxContainer.getBoundingClientRect();
+                if (boxRect.top < windowHeight * 0.6) {
+                    boxContainer.classList.add('open');
+                } else {
+                    boxContainer.classList.remove('open');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -81,6 +81,36 @@
             100% { transform: rotateX(-10deg) rotateY(360deg); }
         }
 
+        /* Flying Box Animations */
+        @keyframes fly-right {
+            0% { left: -100px; transform: rotate(0deg); }
+            100% { left: 100vw; transform: rotate(360deg); }
+        }
+        @keyframes fly-left {
+            0% { right: -100px; transform: rotate(0deg); }
+            100% { right: 100vw; transform: rotate(-360deg); }
+        }
+        
+        .flying-parcel {
+            position: fixed;
+            width: 40px; height: 40px;
+            background: #8D6E63;
+            border: 2px solid #5D4037;
+            z-index: 25;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+        .flying-parcel::after {
+            content: '';
+            width: 100%; height: 2px;
+            background: rgba(0,0,0,0.2);
+            position: absolute;
+            top: 50%;
+        }
+
         /* --- CUSTOMIZER MODAL STYLES --- */
         #customizer-modal {
             position: fixed;
@@ -88,7 +118,7 @@
             background: rgba(20, 30, 20, 0.95);
             backdrop-filter: blur(15px);
             z-index: 300;
-            display: none; /* Hidden by default */
+            display: none;
             align-items: center;
             justify-content: center;
             opacity: 0;
@@ -261,6 +291,47 @@
             box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3); z-index: 1;
         }
         .btn-order:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(46, 125, 50, 0.5); }
+
+        /* GLOWING HOVER EFFECTS FOR BOTTOM BUTTONS */
+        .glow-halo {
+            position: relative;
+            overflow: visible;
+        }
+        .glow-halo::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn-grow.glow-halo:hover {
+            box-shadow: 0 0 20px #4CAF50, 0 0 40px #4CAF50;
+            border: 2px solid #a5d6a7;
+        }
+        
+        .btn-action.glow-halo:hover {
+            box-shadow: 0 0 20px #FF5722, 0 0 40px #FF5722;
+            border: 2px solid #ffccbc;
+        }
+        
+        .btn-purple.glow-halo:hover {
+            box-shadow: 0 0 20px #AA00FF, 0 0 40px #AA00FF;
+            border: 2px solid #e1bee7;
+        }
+        .btn-purple {
+            background: linear-gradient(135deg, #AA00FF 0%, #EA80FC 100%);
+            color: white;
+            padding: 16px 48px;
+            border-radius: 50px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(170, 0, 255, 0.4);
+            text-transform: uppercase;
+        }
 
         /* --- LANDING SHELL STYLES --- */
         #landing-shell {
@@ -444,6 +515,34 @@
         #industry-impact { height: 80vh; background: linear-gradient(to bottom, var(--soil-mid), #453029); position: relative; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
         #reviews { height: 80vh; background: #453029; position: relative; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
         
+        /* Comparison Section */
+        #comparison {
+            height: 90vh;
+            background: linear-gradient(to bottom, #453029, #3E2723);
+            position: relative;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .comp-table {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .comp-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .comp-row:last-child { border-bottom: none; }
+        .comp-col { flex: 1; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .comp-header { background: rgba(0,0,0,0.2); font-weight: bold; font-size: 1.2rem; color: #F5DEB3; }
+        .comp-label { flex: 0.8; text-align: left; font-weight: bold; color: #A5D6A7; background: rgba(0,0,0,0.1); }
+        
         .review-container { display: flex; gap: 30px; perspective: 1000px; flex-wrap: wrap; justify-content: center; }
         .review-card { background: rgba(255, 255, 255, 0.95); color: #333; padding: 25px; border-radius: 20px; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.4s, box-shadow 0.4s; transform-style: preserve-3d; position: relative; overflow: hidden; }
         .review-card:hover { transform: rotateX(5deg) rotateY(-5deg) translateY(-10px); box-shadow: 10px 20px 40px rgba(0,0,0,0.3); }
@@ -451,7 +550,7 @@
         .review-avatar { width: 60px; height: 60px; border-radius: 50%; background: #eee; margin-bottom: 15px; object-fit: cover; border: 3px solid #4CAF50; }
         .review-stars { color: #FFD700; margin-bottom: 10px; font-size: 1.2rem; }
 
-        #underground-pure { height: 100vh; background: linear-gradient(to bottom, #453029, var(--soil-deep)); position: relative; color: #fff; }
+        #underground-pure { height: 100vh; background: linear-gradient(to bottom, #3E2723, var(--soil-deep)); position: relative; color: #fff; }
         #rebirth { height: 100vh; background: var(--soil-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; color: #fff; }
 
         .debris { position: absolute; opacity: 0.6; transition: transform 0.5s ease-out; }
@@ -471,6 +570,23 @@
         .bottom { transform: rotateX(-90deg) translateZ(100px); background: #5D4037; }
         .box-container.open .top { transform: translateZ(-100px) rotateX(-225deg); }
 
+        /* Big Box Plants */
+        .box-plants {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            transform: translateZ(0px); /* Inside box */
+            pointer-events: none;
+            z-index: 5; /* Behind front face, in front of back */
+        }
+        .b-plant {
+            position: absolute;
+            bottom: 0;
+            transform-origin: bottom center;
+            transform: scale(0);
+            transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .box-container.open .b-plant { transform: scale(1); }
+
         .plant-sprout { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0); transform-origin: bottom center; transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 0; width: 150px; }
         .box-container.open + .plant-sprout { transform: translateX(-50%) scale(1); }
 
@@ -487,6 +603,9 @@
         .mini-bottom { transform: rotateX(-90deg) translateZ(40px); background: #5D4037; }
         .mini-plant { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) scale(0); transform-origin: bottom center; transition: transform 3s ease-out; width: 100px; height: 100px; opacity: 0; pointer-events: none; }
         .mini-plant.grown { transform: translateX(-50%) scale(1); opacity: 1; }
+        
+        /* SHOW MINI BOXES */
+        #mini-boxes-container { display: block !important; }
 
         .btn-grow { background: #4CAF50; color: white; padding: 15px 40px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-transform: uppercase; text-decoration: none; z-index: 50; border: none; cursor: pointer; }
         .btn-grow:hover { background: #388E3C; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4); }
@@ -526,18 +645,60 @@
         .product-image-container { height: 250px; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
         .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
         .product-card:hover .product-image { transform: scale(1.1); }
-        .stat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2rem; border-radius: 1rem; transition: transform 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.15); }
-
+        
         /* BUTTON CONTAINER ANIMATION */
         #action-buttons {
             opacity: 0;
-            transform: translateY(-50px) scale(0.8);
+            transform: translateY(-200px) scale(0);
             transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition-delay: 0.2s;
+            position: relative;
+            z-index: 15;
         }
         #action-buttons.landed {
             opacity: 1;
             transform: translateY(0) scale(1);
+        }
+
+        /* GLOWING HOVER EFFECTS FOR BOTTOM BUTTONS */
+        .glow-halo {
+            position: relative;
+            overflow: visible;
+        }
+        .glow-halo::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn-grow.glow-halo:hover {
+            box-shadow: 0 0 20px #4CAF50, 0 0 40px #4CAF50;
+            border: 2px solid #a5d6a7;
+        }
+        
+        .btn-action.glow-halo:hover {
+            box-shadow: 0 0 20px #FF5722, 0 0 40px #FF5722;
+            border: 2px solid #ffccbc;
+        }
+        
+        .btn-purple.glow-halo:hover {
+            box-shadow: 0 0 20px #AA00FF, 0 0 40px #AA00FF;
+            border: 2px solid #e1bee7;
+        }
+        .btn-purple {
+            background: linear-gradient(135deg, #AA00FF 0%, #EA80FC 100%);
+            color: white;
+            padding: 16px 48px;
+            border-radius: 50px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(170, 0, 255, 0.4);
+            text-transform: uppercase;
         }
 
     </style>
@@ -716,7 +877,7 @@
             <svg viewBox="0 0 50 220" class="w-full h-auto"><path d="M25,0 Q45,50 15,110 Q5,160 35,220" stroke="#33691E" stroke-width="4" fill="none"/><circle cx="15" cy="110" r="6" fill="#689F38"/></svg>
         </div>
 
-        <!-- Fireflies & Pollen (Doubled Quantity, Bigger, More Move) -->
+        <!-- Fireflies & Pollen -->
         <div class="firefly" style="top: 30%; left: 20%; --tx: 100px; --ty: -100px; animation: float-firefly 5s infinite ease-in-out;"></div>
         <div class="firefly" style="top: 60%; left: 70%; --tx: -80px; --ty: 80px; animation: float-firefly 7s infinite ease-in-out 1s;"></div>
         <div class="firefly" style="top: 40%; left: 50%; --tx: 90px; --ty: 60px; animation: float-firefly 6s infinite ease-in-out 2s;"></div>
@@ -853,6 +1014,46 @@
         </div>
     </section>
 
+    <!-- NEW SECTION: COMPARISON TABLE -->
+    <section id="comparison">
+        <div class="max-w-6xl mx-auto z-10 w-full fade-in-trigger flex flex-col items-center">
+            <h2 class="text-4xl md:text-5xl mb-12 text-[#F5DEB3] font-serif text-center">Why Root Rise?</h2>
+            
+            <div class="comp-table">
+                <div class="comp-row">
+                    <div class="comp-col comp-header">Feature</div>
+                    <div class="comp-col comp-header" style="color: #BDBDBD;">Jute / Traditional</div>
+                    <div class="comp-col comp-header" style="color: #4CAF50; background: rgba(76, 175, 80, 0.2);">Root Rise Material</div>
+                </div>
+                <div class="comp-row">
+                    <div class="comp-col comp-label">Carbon Footprint</div>
+                    <div class="comp-col text-gray-300">Neutral / Low</div>
+                    <div class="comp-col font-bold text-[#81C784]" style="background: rgba(76, 175, 80, 0.05);">Negative (Sequesters CO2)</div>
+                </div>
+                <div class="comp-row">
+                    <div class="comp-col comp-label">Environmental Impact</div>
+                    <div class="comp-col text-gray-300">Biodegradable</div>
+                    <div class="comp-col font-bold text-[#81C784]" style="background: rgba(76, 175, 80, 0.05);">Regenerative (Grows Plants)</div>
+                </div>
+                <div class="comp-row">
+                    <div class="comp-col comp-label">Water Usage</div>
+                    <div class="comp-col text-gray-300">High (Crop Intensive)</div>
+                    <div class="comp-col font-bold text-[#81C784]" style="background: rgba(76, 175, 80, 0.05);">Minimal (Mycelium Based)</div>
+                </div>
+                <div class="comp-row">
+                    <div class="comp-col comp-label">Pricing</div>
+                    <div class="comp-col text-gray-300">Medium</div>
+                    <div class="comp-col font-bold text-[#81C784]" style="background: rgba(76, 175, 80, 0.05);">Competitive at Scale</div>
+                </div>
+                <div class="comp-row">
+                    <div class="comp-col comp-label">Use Case</div>
+                    <div class="comp-col text-gray-300">Textiles, Bags</div>
+                    <div class="comp-col font-bold text-[#81C784]" style="background: rgba(76, 175, 80, 0.05);">Any Rigid Packaging</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- NEW SECTION: REVIEWS -->
     <section id="reviews">
         <div class="max-w-6xl mx-auto z-10 w-full text-center fade-in-trigger">
@@ -860,30 +1061,30 @@
             
             <div class="review-container">
                 <div class="review-card">
-                    <img src="https://i.pravatar.cc/150?img=32" alt="User" class="review-avatar mx-auto">
+                    <img src="https://i.pravatar.cc/150?u=ananya" alt="Ananya" class="review-avatar mx-auto">
                     <div class="review-stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
                     <p class="text-gray-600 italic mb-4">"I threw the packaging in my garden compost and 3 weeks later I had basil sprouting! Absolutely genius design."</p>
-                    <h4 class="font-bold text-[#3E2723]">- Sarah Jenkins</h4>
+                    <h4 class="font-bold text-[#3E2723]">- Ananya Gupta</h4>
                 </div>
 
                 <div class="review-card">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="User" class="review-avatar mx-auto">
+                    <img src="https://i.pravatar.cc/150?u=rahul" alt="Rahul" class="review-avatar mx-auto">
                     <div class="review-stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                     </div>
                     <p class="text-gray-600 italic mb-4">"My customers love unboxing their orders now. It's not just waste anymore, it's a gift to the planet. Highly recommend."</p>
-                    <h4 class="font-bold text-[#3E2723]">- Mark D.</h4>
+                    <h4 class="font-bold text-[#3E2723]">- Rahul Sharma</h4>
                 </div>
 
                 <div class="review-card">
-                    <img src="https://i.pravatar.cc/150?img=5" alt="User" class="review-avatar mx-auto">
+                    <img src="https://i.pravatar.cc/150?u=priya" alt="Priya" class="review-avatar mx-auto">
                     <div class="review-stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
                     <p class="text-gray-600 italic mb-4">"The mushroom inserts are surprisingly sturdy. Better than Styrofoam and smells like rain and earth. Love it!"</p>
-                    <h4 class="font-bold text-[#3E2723]">- Emily R.</h4>
+                    <h4 class="font-bold text-[#3E2723]">- Priya Patel</h4>
                 </div>
             </div>
         </div>
@@ -949,10 +1150,34 @@
                  </svg>
             </div>
 
-            <!-- The Main Box -->
-            <div class="box-container" id="package-box">
+            <!-- The Main Box (Renamed to bigBOX) -->
+            <div class="box-container" id="bigBOX">
                 <div class="box">
-                    <div class="face front"><i class="fas fa-recycle opacity-50"></i></div>
+                    <!-- Plants Inside the Box -->
+                    <div class="box-plants">
+                        <!-- Left Leaf -->
+                        <svg class="b-plant" style="left: 20px; height: 80px; width: 40px; transition-delay: 0.2s;" viewBox="0 0 50 100">
+                             <path d="M25,100 Q0,50 0,20 Q25,0 50,20 Q50,50 25,100" fill="#81C784" stroke="#388E3C" stroke-width="2"/>
+                        </svg>
+                        <!-- Right Vine -->
+                        <svg class="b-plant" style="right: 20px; height: 100px; width: 50px; transition-delay: 0.4s;" viewBox="0 0 50 100">
+                             <path d="M25,100 Q50,70 40,50 Q20,30 30,10" fill="none" stroke="#4CAF50" stroke-width="3"/>
+                             <circle cx="30" cy="10" r="5" fill="#FFEB3B"/>
+                             <path d="M40,50 Q60,40 50,30" fill="none" stroke="#4CAF50" stroke-width="2"/>
+                             <circle cx="50" cy="30" r="3" fill="#FFEB3B"/>
+                        </svg>
+                        <!-- Center Flower -->
+                        <svg class="b-plant" style="left: 80px; height: 120px; width: 60px; bottom: 10px; transition-delay: 0.6s;" viewBox="0 0 60 120">
+                            <path d="M30,120 L30,40" stroke="#558B2F" stroke-width="4"/>
+                            <circle cx="30" cy="40" r="15" fill="#F48FB1"/>
+                            <circle cx="30" cy="40" r="8" fill="#AD1457"/>
+                        </svg>
+                    </div>
+
+                    <div class="face front">
+                        <!-- Logo on bigBOX -->
+                        <img src="logo.png" alt="Logo" style="width: 80%; opacity: 0.9; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));">
+                    </div>
                     <div class="face back"></div>
                     <div class="face right"></div>
                     <div class="face left"></div>
@@ -963,15 +1188,15 @@
         </div>
 
         <div id="action-buttons" class="mt-20 z-20 flex flex-col md:flex-row items-center gap-6">
-            <button onclick="toggleContact()" class="btn-grow cursor-pointer">
+            <button onclick="toggleContact()" class="btn-grow cursor-pointer glow-halo">
                 Start Eco Journey
             </button>
             <!-- NEW BUTTON -->
-            <button onclick="openCustomizer()" class="btn-action">
+            <button onclick="openCustomizer()" class="btn-action glow-halo">
                 GET GROWING <i class="fas fa-seedling ml-2"></i>
             </button>
-            <button onclick="toggleShowcase()" class="bg-purple-600 text-white padding-15px-40px px-10 py-4 rounded-full font-semibold tracking-wide transition-all duration-300 shadow-lg hover:bg-purple-700 hover:-translate-y-1 uppercase">
-                Product Showcase
+            <button onclick="toggleShowcase()" class="btn-purple cursor-pointer glow-halo">
+                Product Showcase <i class="fas fa-box-open ml-2"></i>
             </button>
         </div>
         
@@ -997,6 +1222,9 @@
             &copy; 2023 Root Rise Inc. All Rights Reserved.
         </footer>
     </section>
+
+    <!-- Flying Boxes Container -->
+    <div id="flying-boxes-container"></div>
 
     <!-- Mini Boxes Container: Moved to body level for full page positioning -->
     <div id="mini-boxes-container" class="absolute top-0 left-0 w-full h-full pointer-events-none z-30 overflow-hidden">
@@ -1141,6 +1369,9 @@
             // Initialization
             createMiniBoxes();
             setupScrollAnimations(logo);
+            
+            // Start chucking boxes
+            setInterval(spawnFlyingBox, 2000); // Throw a box every 2 seconds
         });
 
         // Helper for explicit click to open (Fallback)
@@ -1172,11 +1403,42 @@
                 plant.classList.add('grown');
             }, 300);
         }
+        
+        // --- FLYING BOX LOGIC ---
+        function spawnFlyingBox() {
+            const container = document.getElementById('flying-boxes-container');
+            const box = document.createElement('div');
+            box.className = 'flying-parcel';
+            
+            // Randomize direction
+            const isRight = Math.random() > 0.5;
+            const animName = isRight ? 'fly-right' : 'fly-left';
+            
+            // Random vertical position (within viewport)
+            const topPos = Math.random() * 80 + 10; // 10% to 90% vh
+            
+            // Random duration
+            const duration = 3 + Math.random() * 4; // 3-7s
+
+            box.style.top = `${topPos}vh`;
+            box.style.animation = `${animName} ${duration}s linear forwards`;
+            
+            // Add recycled icon
+            box.innerHTML = '<i class="fas fa-recycle" style="opacity:0.3; color:#3e2723;"></i>';
+
+            container.appendChild(box);
+
+            // Cleanup
+            setTimeout(() => {
+                box.remove();
+            }, duration * 1000);
+        }
 
         function createMiniBoxes() {
             const container = document.getElementById('mini-boxes-container');
             // Wait for layout to stabilize
             setTimeout(() => {
+                // Updated height calculation
                 const totalHeight = Math.max(
                     document.body.scrollHeight, document.documentElement.scrollHeight,
                     document.body.offsetHeight, document.documentElement.offsetHeight,
@@ -1199,27 +1461,14 @@
                     };
                     wrapper.style.pointerEvents = 'auto';
 
-                    // Smart Positioning: Based on Sections instead of whole body
-                    // Identify sections to place boxes
-                    const sections = [
-                        document.getElementById('underground-mix'),
-                        document.getElementById('who-we-are'),
-                        document.getElementById('industry-impact'),
-                        document.getElementById('reviews'),
-                        document.getElementById('underground-pure')
-                    ];
-                    
-                    // Distribute boxes among sections
-                    const targetSection = sections[i % sections.length];
-                    if (!targetSection) continue;
+                    // Random placement logic adjusted to prioritize side margins
+                    // Vertical: Start below surface
+                    const minTop = surfaceHeight + 100; 
+                    const maxTop = totalHeight - 400;
+                    const verticalPos = Math.random() * (maxTop - minTop) + minTop;
 
-                    const rect = targetSection.getBoundingClientRect();
-                    // Calculate top relative to document
-                    const sectionTop = rect.top + window.scrollY;
-                    
-                    const verticalPos = sectionTop + Math.random() * (rect.height - 100);
                     const side = Math.random() > 0.5 ? 'left' : 'right';
-                    const horizontalOffset = 2 + Math.random() * 8; // 2-10% margin
+                    const horizontalOffset = 2 + Math.random() * 8; // 2% to 10% margin
 
                     wrapper.style.position = 'absolute';
                     wrapper.style.top = `${verticalPos}px`;
@@ -1232,7 +1481,7 @@
                         wrapper.style.left = 'auto';
                     }
                     
-                    const randomScale = 0.6 + Math.random() * 0.5;
+                    const randomScale = 0.7 + Math.random() * 0.5;
                     wrapper.style.transform = `scale(${randomScale})`;
 
                     const plants = [
@@ -1258,14 +1507,15 @@
                     `;
                     container.appendChild(wrapper);
                 }
-            }, 100);
+            }, 500); // Increased delay for layout
         }
 
         function setupScrollAnimations(logo) {
             const debris = document.querySelectorAll('.debris');
             const paths = document.querySelectorAll('.root-path');
             const fadeElements = document.querySelectorAll('.fade-in-trigger');
-            const boxContainer = document.getElementById('package-box');
+            // Updated ID reference to bigBOX
+            const boxContainer = document.getElementById('bigBOX');
             const navbar = document.getElementById('navbar');
             const actionButtons = document.getElementById('action-buttons');
 

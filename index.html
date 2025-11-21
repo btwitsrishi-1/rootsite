@@ -10,16 +10,18 @@
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@300;400;600;800&display=swap');
 
         :root {
-            --sky-top: #87CEEB;
-            --sky-bottom: #E0F7FA;
+            --sky-top: #4FC3F7;
+            --sky-bottom: #B2EBF2;
             --grass: #4CAF50;
             --soil-top: #5D4037;
-            --soil-mid: #4E342E;
-            --soil-deep: #3E2723;
+            --soil-mid: #3E2723;
+            --soil-deep: #1a100e;
             --root-color: #F5DEB3;
             --cardboard: #cbbfa6;
             --cardboard-dark: #b8aa8f;
             --tape: rgba(240, 230, 200, 0.7);
+            --accent-pink: #FF4081;
+            --accent-orange: #FF6E40;
         }
 
         body {
@@ -28,9 +30,9 @@
             margin: 0;
             padding: 0;
             position: relative;
-            /* Landing shell settings */
             height: 100vh;
             overflow: hidden;
+            background: var(--soil-deep);
         }
 
         body.unboxed {
@@ -47,6 +49,218 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* --- ANIMATIONS --- */
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes float-firefly {
+            0% { transform: translate(0, 0); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+
+        @keyframes float-pollen {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+            10% { opacity: 0.8; }
+            80% { opacity: 0.9; }
+        }
+
+        @keyframes rotate-display {
+            0% { transform: rotateX(-10deg) rotateY(0deg); }
+            100% { transform: rotateX(-10deg) rotateY(360deg); }
+        }
+
+        /* --- CUSTOMIZER MODAL STYLES --- */
+        #customizer-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 30, 20, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 300;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #customizer-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .customizer-content {
+            width: 95%;
+            max-width: 1300px;
+            height: 90vh;
+            background: #fff;
+            border-radius: 25px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            position: relative;
+            border: 4px solid #4CAF50;
+        }
+
+        @media (min-width: 768px) {
+            .customizer-content {
+                flex-direction: row;
+            }
+        }
+
+        .preview-area {
+            flex: 1.5;
+            background: radial-gradient(circle at center, #FFF9C4 0%, #FFECB3 40%, #FFCC80 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            overflow: hidden;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.1);
+        }
+        
+        .preview-area::before {
+            content: '';
+            position: absolute;
+            top:0; left:0; width:100%; height:100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff9800' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .controls-area {
+            flex: 1;
+            background: linear-gradient(160deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 40px;
+            overflow-y: auto;
+            border-left: 4px solid #81C784;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            position: relative;
+        }
+        
+        .controls-area::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c0-11.05-8.95-20-20-20s-20 8.95-20 20 8.95 20 20 20 20-8.95 20-20z' fill='%234caf50' fill-opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .preview-object-container {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            animation: rotate-display 15s infinite linear;
+            z-index: 10;
+        }
+        
+        .preview-area:hover .preview-object-container {
+            animation-play-state: paused;
+        }
+
+        .custom-box {
+            width: 250px; height: 250px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .c-face {
+            position: absolute; width: 250px; height: 250px;
+            background: #d7ccc8; border: 1px solid rgba(0,0,0,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #5d4037; overflow: hidden;
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        .c-front { transform: translateZ(125px); }
+        .c-back { transform: rotateY(180deg) translateZ(125px); }
+        .c-left { transform: rotateY(-90deg) translateZ(125px); }
+        .c-right { transform: rotateY(90deg) translateZ(125px); }
+        .c-top { transform: rotateX(90deg) translateZ(125px); background: #cbbfa6; }
+        .c-bottom { transform: rotateX(-90deg) translateZ(125px); }
+
+        .custom-mailer {
+            width: 280px; height: 360px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .m-face {
+            position: absolute; width: 100%; height: 100%;
+            background: #d7ccc8; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            backface-visibility: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        .m-front { transform: translateZ(5px); }
+        .m-back { transform: rotateY(180deg) translateZ(5px); background: #cbbfa6; }
+        .m-flap {
+            position: absolute; top: 0; width: 100%; height: 100px;
+            background: #bcaaa4; transform-origin: top;
+            transform: rotateX(-170deg) translateZ(6px);
+            border-bottom-left-radius: 50%; border-bottom-right-radius: 50%;
+            z-index: 10;
+        }
+
+        .user-logo-img {
+            max-width: 60%; max-height: 60%;
+            object-fit: contain; pointer-events: none;
+        }
+        .user-text {
+            position: absolute; bottom: 20%; width: 100%; text-align: center;
+            font-family: 'Courier New', monospace; font-size: 1.2rem;
+            color: #3e2723; pointer-events: none;
+        }
+
+        .control-group { z-index: 1; position: relative; }
+        .control-group h4 { margin-bottom: 10px; color: #2E7D32; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+        
+        .type-selector { display: flex; gap: 10px; }
+        .type-btn {
+            flex: 1; padding: 15px; border: 2px solid transparent; border-radius: 12px;
+            background: rgba(255,255,255,0.7); cursor: pointer; font-weight: 700; color: #555;
+            transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .type-btn:hover { transform: translateY(-2px); background: white; }
+        .type-btn.active { border-color: #4CAF50; color: #1B5E20; background: #fff; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+        
+        .seed-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .seed-chip {
+            padding: 10px 20px; background: rgba(255,255,255,0.6); border-radius: 25px;
+            font-size: 0.95rem; cursor: pointer; border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.2s; font-weight: 600; color: #444;
+        }
+        .seed-chip:hover { background: white; transform: scale(1.05); }
+        .seed-chip.selected { background: linear-gradient(45deg, #4CAF50, #81C784); color: white; border: none; box-shadow: 0 4px 10px rgba(76,175,80,0.4); }
+
+        input[type="text"], input[type="file"] {
+            width: 100%; padding: 15px; border: 2px solid transparent; border-radius: 12px;
+            font-family: inherit; background: rgba(255,255,255,0.8); box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s; font-size: 1rem;
+        }
+        input[type="text"]:focus { border-color: #4CAF50; outline: none; background: white; }
+
+        .btn-order {
+            background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%); 
+            color: white; padding: 20px; border-radius: 15px;
+            font-weight: 900; font-size: 1.2rem; cursor: pointer; border: none;
+            margin-top: auto; transition: all 0.3s; letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3); z-index: 1;
+        }
+        .btn-order:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(46, 125, 50, 0.5); }
 
         /* --- LANDING SHELL STYLES --- */
         #landing-shell {
@@ -72,335 +286,192 @@
             transition: transform 1s cubic-bezier(0.6, 0.05, 0.01, 0.99);
             box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
             z-index: 10;
+            overflow: hidden; 
         }
 
-        #flap-left {
-            left: 0;
-            border-right: 1px solid rgba(0,0,0,0.1);
-            transform-origin: left center;
-        }
-
-        #flap-right {
-            right: 0;
-            border-left: 1px solid rgba(0,0,0,0.1);
-            transform-origin: right center;
-        }
+        #flap-left { left: 0; border-right: 1px solid rgba(0,0,0,0.1); transform-origin: left center; }
+        #flap-right { right: 0; border-left: 1px solid rgba(0,0,0,0.1); transform-origin: right center; }
 
         .corrugation {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0.05;
+            position: absolute; width: 100%; height: 100%; opacity: 0.05;
             background: repeating-linear-gradient(90deg, transparent, transparent 2px, #000 2px, #000 4px);
+            pointer-events: none;
+        }
+
+        .shell-logo {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%) rotate(-5deg);
+            width: 600px;
+            opacity: 0.8;
+            mix-blend-mode: multiply;
+            filter: sepia(0.5) contrast(1.2);
+            pointer-events: none;
+        }
+
+        .sticker {
+            position: absolute;
+            border: 2px solid #5D4037;
+            color: #5D4037;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            opacity: 0.6;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+
+        .sticker-eco {
+            bottom: 20%; left: 10%; transform: rotate(15deg);
+            border-color: #2E7D32; color: #2E7D32;
+        }
+        
+        .barcode {
+            position: absolute;
+            top: 10%; right: 10%;
+            width: 80px; height: 50px;
+            background: repeating-linear-gradient(90deg, #333, #333 2px, transparent 2px, transparent 4px);
+            opacity: 0.7;
+            transform: rotate(-2deg);
         }
 
         #tape-container {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 100%;
-            z-index: 20;
-            display: flex;
-            justify-content: center;
-            overflow: hidden;
-            transition: opacity 0.5s, transform 0.5s;
-            cursor: pointer; /* Indicate clickable */
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 100%; z-index: 20;
+            display: flex; justify-content: center; overflow: hidden; transition: opacity 0.5s, transform 0.5s; cursor: pointer;
         }
 
         .tape-strip {
-            width: 100%;
-            height: 100%;
-            background-color: var(--tape);
-            backdrop-filter: blur(2px);
-            border-left: 1px solid rgba(255,255,255,0.3);
-            border-right: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            position: relative;
+            width: 100%; height: 100%; background-color: var(--tape); backdrop-filter: blur(2px);
+            border-left: 1px solid rgba(255,255,255,0.3); border-right: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 10px rgba(0,0,0,0.05); position: relative;
         }
         
         #cutter-track {
-            position: absolute;
-            top: 5%;
-            bottom: 5%;
-            width: 10px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 25;
-            pointer-events: none;
+            position: absolute; top: 5%; bottom: 5%; width: 10px; background: rgba(0,0,0,0.05);
+            border-radius: 5px; left: 50%; transform: translateX(-50%); z-index: 25; pointer-events: none;
         }
 
         #cutter-handle {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
-            background: #333;
-            border: 3px solid #fff;
-            border-radius: 50%;
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 30;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s; /* Only animate transform, let JS handle top */
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 60px;
+            background: #333; border: 3px solid #fff; border-radius: 50%; cursor: grab;
+            display: flex; align-items: center; justify-content: center; z-index: 30;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.1s;
         }
-
-        #cutter-handle:active {
-            cursor: grabbing;
-            transform: translateX(-50%) scale(1.1);
-        }
-        
-        #cutter-handle i {
-            color: #fff;
-            font-size: 24px;
-        }
+        #cutter-handle:active { cursor: grabbing; transform: translateX(-50%) scale(1.1); }
+        #cutter-handle i { color: #fff; font-size: 24px; }
 
         #cut-progress-line {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            background: #333;
-            height: 0%;
-            z-index: 26;
-            transition: height 0.05s linear;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px;
+            background: #333; height: 0%; z-index: 26; transition: height 0.05s linear;
         }
 
         .box-label {
-            position: absolute;
-            top: 40%;
-            width: 300px;
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            color: rgba(62, 39, 35, 0.6);
-            font-weight: bold;
-            font-size: 1.5rem;
-            border: 4px solid rgba(62, 39, 35, 0.4);
-            padding: 20px;
-            transform: rotate(-5deg);
-            pointer-events: none;
-            z-index: 15;
+            position: absolute; top: 40%; width: 300px; text-align: center; font-family: 'Courier New', monospace;
+            color: rgba(62, 39, 35, 0.6); font-weight: bold; font-size: 1.5rem;
+            border: 4px solid rgba(62, 39, 35, 0.4); padding: 20px; transform: rotate(-5deg); pointer-events: none; z-index: 15;
         }
         #label-left { left: 10%; top: 30%; transform: rotate(-15deg); }
         #label-right { right: 10%; top: 60%; transform: rotate(10deg); border-color: rgba(46, 125, 50, 0.4); color: rgba(46, 125, 50, 0.6);}
 
         .instruction-text {
-            position: absolute;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            z-index: 40;
-            pointer-events: none;
-            white-space: nowrap;
-            opacity: 1;
-            transition: opacity 0.3s;
+            position: absolute; top: 120px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7);
+            color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; z-index: 40;
+            pointer-events: none; white-space: nowrap; opacity: 1; transition: opacity 0.3s;
         }
 
-        /* --- OPENED STATE --- */
         body.unboxed #flap-left { transform: translateX(-100%); }
         body.unboxed #flap-right { transform: translateX(100%); }
-        body.unboxed #tape-container, 
-        body.unboxed #cutter-track, 
-        body.unboxed #cutter-handle,
-        body.unboxed .box-label,
-        body.unboxed .instruction-text {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s;
-        }
-        body.unboxed #landing-shell {
-            pointer-events: none;
-            transition: visibility 0s 1s;
-            visibility: hidden;
-        }
+        body.unboxed #tape-container, body.unboxed #cutter-track, body.unboxed #cutter-handle, body.unboxed .box-label, body.unboxed .instruction-text, body.unboxed .shell-logo, body.unboxed .sticker, body.unboxed .barcode { opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+        body.unboxed #landing-shell { pointer-events: none; transition: visibility 0s 1s; visibility: hidden; }
 
-        /* --- EXISTING STYLES --- */
+        /* --- SITE STYLES --- */
         .layer { position: relative; width: 100%; overflow: hidden; }
 
         #surface {
-            height: 100vh;
-            background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            position: relative;
+            height: 100vh; background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; position: relative;
         }
 
-        .cityscape {
-            position: absolute;
-            bottom: 38vh;
-            right: 0;
-            width: 50%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-end;
-            gap: 2px;
-            z-index: 0;
-            opacity: 0.9;
-            padding-right: 2rem;
+        /* Vines */
+        .vine {
+            position: absolute; top: -20px; width: 100px; z-index: 5; transform-origin: top center;
+            animation: sway 5s ease-in-out infinite alternate; pointer-events: none;
+            filter: drop-shadow(4px 8px 10px rgba(0,0,0,0.3));
+        }
+        .vine svg { width: 100%; height: auto; }
+
+        /* Fireflies & Pollen - UPDATED (Bigger size, more movement) */
+        .firefly {
+            position: absolute; width: 9px; height: 9px; background: #FFEB3B; border-radius: 50%;
+            box-shadow: 0 0 12px #FFEB3B, 0 0 25px #FFEB3B; opacity: 0; pointer-events: none; z-index: 8;
+        }
+        .pollen {
+            position: absolute; width: 4px; height: 4px; background: var(--accent-pink); border-radius: 50%;
+            opacity: 0; pointer-events: none; z-index: 7; filter: blur(1px);
         }
 
-        .building {
-            background: #546E7A;
-            width: 60px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 5px;
-            box-shadow: -5px 0 10px rgba(0,0,0,0.1) inset;
-        }
-
-        .building-tall { background: #37474F; width: 70px; z-index: -1; }
+        /* Buildings */
+        .cityscape { position: absolute; bottom: 38vh; right: 0; width: 50%; display: flex; justify-content: flex-end; align-items: flex-end; gap: 2px; z-index: 0; opacity: 0.95; padding-right: 2rem; }
+        .building { background: #546E7A; width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 5px; box-shadow: -5px 0 10px rgba(0,0,0,0.1) inset; }
+        .building-tall { background: #37474F; width: 90px; z-index: -1; }
         
-        .sun {
-            position: absolute;
-            top: 10%;
-            right: 10%;
-            width: 80px;
-            height: 80px;
-            background: #FDB813;
-            border-radius: 50%;
-            box-shadow: 0 0 40px #FFEB3B, 0 0 80px #FDB813;
-            z-index: 1;
-            opacity: 0.9;
-        }
-
-        .home {
-            width: 0; height: 0; 
-            border-left: 35px solid transparent; border-right: 35px solid transparent;
-            border-bottom: 35px solid #455A64;
-            position: relative; margin-bottom: -1px;
-        }
-        .home::after {
-            content: ''; position: absolute; top: 35px; left: -25px;
-            width: 50px; height: 40px; background: #607D8B;
-        }
-
-        .window {
-            width: 10px; height: 12px; background: #FFEB3B; margin: 4px;
-            display: inline-block; box-shadow: 0 0 8px rgba(255, 235, 59, 0.6);
-        }
-
-        .falling-box {
-            position: absolute; width: 14px; height: 14px;
-            background: #8D6E63; border: 1px solid #5D4037;
-            z-index: 5; animation: fall 4s linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            85% { opacity: 1; }
-            100% { transform: translateY(40vh) rotate(360deg); opacity: 0; }
-        }
-
-        .trash-hill {
-            position: absolute; bottom: 0; width: 100%; height: 50vh;
-            background: #795548; clip-path: ellipse(150% 100% at 50% 100%);
-            display: flex; justify-content: center; align-items: flex-end; z-index: 2;
-        }
+        .sun { position: absolute; top: 10%; right: 10%; width: 80px; height: 80px; background: #FDB813; border-radius: 50%; box-shadow: 0 0 40px #FFEB3B, 0 0 80px #FDB813; z-index: 1; opacity: 0.9; }
+        .home { width: 0; height: 0; border-left: 45px solid transparent; border-right: 45px solid transparent; border-bottom: 45px solid #455A64; position: relative; margin-bottom: -1px; }
+        .home::after { content: ''; position: absolute; top: 45px; left: -35px; width: 70px; height: 50px; background: #607D8B; }
         
-        .grass-cap {
-            position: absolute; bottom: 45vh; width: 120%; height: 15vh;
-            background: var(--grass); border-radius: 50%; z-index: 1;
+        .window { 
+            width: 14px; height: 18px; 
+            background: #FFEB3B; 
+            margin: 6px; 
+            display: inline-block; 
+            box-shadow: 0 0 12px rgba(255, 235, 59, 0.8); 
+            animation: flicker 4s infinite alternate;
         }
+        .building:nth-child(odd) .window { animation-duration: 3s; }
+        .building:nth-child(even) .window { animation-duration: 5s; }
 
-        #underground-mix {
-            height: 100vh;
-            background: linear-gradient(to bottom, var(--soil-top), var(--soil-mid));
-            position: relative; color: #fff;
-        }
+        .falling-box { position: absolute; width: 14px; height: 14px; background: #8D6E63; border: 1px solid #5D4037; z-index: 5; animation: fall 4s linear infinite; }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(40vh) rotate(360deg); opacity: 0; } }
 
-        #who-we-are {
-            height: 70vh; background: var(--soil-mid); position: relative; color: #fff;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px;
-        }
+        .trash-hill { position: absolute; bottom: 0; width: 100%; height: 50vh; background: #795548; clip-path: ellipse(150% 100% at 50% 100%); display: flex; justify-content: center; align-items: flex-end; z-index: 2; }
+        .grass-cap { position: absolute; bottom: 45vh; width: 120%; height: 15vh; background: var(--grass); border-radius: 50%; z-index: 1; }
 
-        #industry-impact {
-            height: 80vh; background: linear-gradient(to bottom, var(--soil-mid), #453029);
-            position: relative; color: #fff;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;
-        }
+        #underground-mix { height: 100vh; background: linear-gradient(to bottom, var(--soil-top), var(--soil-mid)); position: relative; color: #fff; }
+        #who-we-are { height: 70vh; background: var(--soil-mid); position: relative; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        #industry-impact { height: 80vh; background: linear-gradient(to bottom, var(--soil-mid), #453029); position: relative; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
+        #reviews { height: 80vh; background: #453029; position: relative; color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
+        
+        .review-container { display: flex; gap: 30px; perspective: 1000px; flex-wrap: wrap; justify-content: center; }
+        .review-card { background: rgba(255, 255, 255, 0.95); color: #333; padding: 25px; border-radius: 20px; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.4s, box-shadow 0.4s; transform-style: preserve-3d; position: relative; overflow: hidden; }
+        .review-card:hover { transform: rotateX(5deg) rotateY(-5deg) translateY(-10px); box-shadow: 10px 20px 40px rgba(0,0,0,0.3); }
+        .review-card::before { content: '"'; position: absolute; top: -10px; right: 20px; font-family: 'DM Serif Display', serif; font-size: 8rem; color: rgba(76, 175, 80, 0.1); z-index: 0; }
+        .review-avatar { width: 60px; height: 60px; border-radius: 50%; background: #eee; margin-bottom: 15px; object-fit: cover; border: 3px solid #4CAF50; }
+        .review-stars { color: #FFD700; margin-bottom: 10px; font-size: 1.2rem; }
 
-        #underground-pure {
-            height: 100vh; background: linear-gradient(to bottom, #453029, var(--soil-deep));
-            position: relative; color: #fff;
-        }
-
-        #rebirth {
-            height: 100vh; background: var(--soil-deep);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; color: #fff;
-        }
+        #underground-pure { height: 100vh; background: linear-gradient(to bottom, #453029, var(--soil-deep)); position: relative; color: #fff; }
+        #rebirth { height: 100vh; background: var(--soil-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; color: #fff; }
 
         .debris { position: absolute; opacity: 0.6; transition: transform 0.5s ease-out; }
         .root-svg { position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 100%; width: 100%; pointer-events: none; z-index: 5; }
-        
-        .root-path {
-            fill: none; stroke: var(--root-color); stroke-width: 4; stroke-linecap: round;
-            stroke-dasharray: 2000; stroke-dashoffset: 2000; transition: stroke-dashoffset 1s ease-out;
-            filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.2));
-        }
-
+        .root-path { fill: none; stroke: var(--root-color); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2000; stroke-dashoffset: 2000; transition: stroke-dashoffset 1s ease-out; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.2)); }
         .trash-svg { fill: #7f8c8d; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
 
         .box-container { position: relative; width: 200px; height: 200px; perspective: 1000px; margin-top: 50px; z-index: 10; }
         .box { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(30deg); transition: transform 1s ease; }
         .box:hover { transform: rotateX(-10deg) rotateY(10deg) scale(1.05); }
-        
-        /* Restored missing face class */
-        .face { 
-            position: absolute; 
-            width: 200px; 
-            height: 200px; 
-            background: #d7ccc8; 
-            border: 2px solid #a1887f; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 2rem; 
-            font-weight: bold; 
-            color: #5d4037; 
-            opacity: 0.9; 
-        }
-
+        .face { position: absolute; width: 200px; height: 200px; background: #d7ccc8; border: 2px solid #a1887f; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; color: #5d4037; opacity: 0.9; }
         .front { transform: translateZ(100px); background: #D7CCC8; }
         .back { transform: rotateY(180deg) translateZ(100px); background: #BCAAA4; }
         .left { transform: rotateY(-90deg) translateZ(100px); background: #D7CCC8; }
         .right { transform: rotateY(90deg) translateZ(100px); background: #BCAAA4; }
-        
-        /* Fixed Top Face Logic for proper Hinge */
-        .top { 
-            transform-origin: top; 
-            transform: translateZ(-100px) rotateX(-90deg); 
-            background: #A1887f; 
-            transition: transform 1s ease-in-out; 
-        }
+        .top { transform-origin: top; transform: translateZ(-100px) rotateX(-90deg); background: #A1887f; transition: transform 1s ease-in-out; }
         .bottom { transform: rotateX(-90deg) translateZ(100px); background: #5D4037; }
+        .box-container.open .top { transform: translateZ(-100px) rotateX(-225deg); }
 
-        /* Open state: Hinge back from the top edge */
-        .box-container.open .top { 
-            transform: translateZ(-100px) rotateX(-225deg); 
-        }
-
-        .plant-sprout {
-            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0);
-            transform-origin: bottom center; transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 0; width: 150px;
-        }
+        .plant-sprout { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) scale(0); transform-origin: bottom center; transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 0; width: 150px; }
         .box-container.open + .plant-sprout { transform: translateX(-50%) scale(1); }
 
         .mini-box-wrapper { position: absolute; width: 80px; height: 80px; perspective: 500px; cursor: pointer; z-index: 30; transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
@@ -420,6 +491,9 @@
         .btn-grow { background: #4CAF50; color: white; padding: 15px 40px; border-radius: 50px; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.2); text-transform: uppercase; text-decoration: none; z-index: 50; border: none; cursor: pointer; }
         .btn-grow:hover { background: #388E3C; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4); }
         
+        .btn-action { background: linear-gradient(to right, #ff9800, #ff5722); color: white; padding: 18px 50px; border-radius: 50px; font-weight: 800; letter-spacing: 2px; transition: all 0.3s; box-shadow: 0 10px 25px rgba(255, 87, 34, 0.4); text-transform: uppercase; z-index: 50; cursor: pointer; font-size: 1.1rem; }
+        .btn-action:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 35px rgba(255, 87, 34, 0.6); }
+
         nav { position: fixed; top: 0; width: 100%; padding: 30px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; transition: all 0.5s ease; background: transparent; }
         nav::before { display: none; }
         nav.scrolled { background-image: none; background-color: rgba(27, 94, 32, 0.95); backdrop-filter: blur(5px); box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 20px; }
@@ -430,14 +504,41 @@
         .scroll-down { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; color: #555; cursor: pointer; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);} 40% {transform: translateY(-20px) translateX(-50%);} 60% {transform: translateY(-10px) translateX(-50%);} }
 
+        /* UPDATED SHOWCASE MODAL STYLES */
+        #product-showcase {
+            visibility: hidden; /* Default hidden state */
+            opacity: 0;
+            transform: translateY(100%); /* Start below screen */
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Smooth 'bring up' animation */
+            background-color: #2d1b15; /* Dark soil contrasting background */
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 60%);
+        }
+        
+        #product-showcase.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .showcase-bg-root { position: absolute; z-index: -1; opacity: 0.2; stroke: #5D4037; fill: none; stroke-width: 20; stroke-linecap: round; }
         .product-card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; }
         .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .product-image-container { height: 250px; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
         .product-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
         .product-card:hover .product-image { transform: scale(1.1); }
-
         .stat-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2rem; border-radius: 1rem; transition: transform 0.3s; }
         .stat-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.15); }
+
+        /* BUTTON CONTAINER ANIMATION */
+        #action-buttons {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.8);
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        #action-buttons.landed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
 
     </style>
 </head>
@@ -446,11 +547,17 @@
     <!-- LANDING SHELL -->
     <div id="landing-shell">
         <div id="flap-left" class="flap">
-            <div class="box-label" id="label-left">ROOT RISE<br><span style="font-size:0.8em">FRAGILE: LIVING CONTENTS</span></div>
+            <!-- Logo on Shell -->
+            <img src="logo.png" class="shell-logo" alt="Root Rise Logo">
+            <div class="box-label" id="label-left" style="top: 60%;">FRAGILE<br><span style="font-size:0.6em">LIVING CONTENTS</span></div>
+            <!-- Stickers -->
+            <div class="sticker sticker-eco">100% ORGANIC</div>
             <div class="corrugation"></div>
         </div>
         <div id="flap-right" class="flap">
-            <div class="box-label" id="label-right">SUSTAINABLE<br>PACKAGING</div>
+            <div class="barcode"></div>
+            <div class="box-label" id="label-right">HANDLE WITH CARE</div>
+            <div class="sticker" style="top: 20%; right: 20%; border-color: #d32f2f; color: #d32f2f; transform: rotate(-10deg);">PRIORITY</div>
             <div class="corrugation"></div>
         </div>
         
@@ -464,11 +571,88 @@
         
         <!-- Instruction Text -->
         <div class="instruction-text">
-            <i class="fas fa-arrow-down animate-bounce"></i> Drag or Click to Open
+            <i class="fas fa-arrow-down animate-bounce"></i> Drag cutter to open
         </div>
 
         <div id="cutter-handle">
             <i class="fas fa-box-open"></i>
+        </div>
+    </div>
+
+    <!-- NEW CUSTOMIZER MODAL -->
+    <div id="customizer-modal">
+        <div class="customizer-content">
+            <button onclick="closeCustomizer()" class="absolute top-4 right-4 z-50 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100">
+                <i class="fas fa-times text-xl text-gray-600"></i>
+            </button>
+            
+            <!-- Preview Area -->
+            <div class="preview-area">
+                <div class="preview-object-container" id="preview-container">
+                    <!-- Box View (Default) -->
+                    <div id="preview-box" class="custom-box">
+                        <div class="c-face c-front" id="box-front">
+                            <img id="box-logo-preview" class="user-logo-img hidden" src="" alt="User Logo">
+                            <div id="box-text-preview" class="user-text"></div>
+                        </div>
+                        <div class="c-face c-back"></div>
+                        <div class="c-face c-left"></div>
+                        <div class="c-face c-right"></div>
+                        <div class="c-face c-top"></div>
+                        <div class="c-face c-bottom"></div>
+                    </div>
+
+                    <!-- Mailer View (Hidden) -->
+                    <div id="preview-mailer" class="custom-mailer hidden">
+                        <div class="m-face m-front" id="mailer-front">
+                            <img id="mailer-logo-preview" class="user-logo-img hidden" src="" alt="User Logo">
+                            <div id="mailer-text-preview" class="user-text"></div>
+                        </div>
+                        <div class="m-face m-back">
+                            <div class="m-flap"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Area -->
+            <div class="controls-area">
+                <h2 class="text-3xl font-serif text-green-900 mb-4">Customise Your Packaging</h2>
+                
+                <!-- Type Selector -->
+                <div class="control-group">
+                    <h4>Packaging Type</h4>
+                    <div class="type-selector">
+                        <button class="type-btn active" onclick="setPackagingType('box', this)">Cardboard Box</button>
+                        <button class="type-btn" onclick="setPackagingType('mailer', this)">Bloom Mailer</button>
+                    </div>
+                </div>
+
+                <!-- Seed Selector -->
+                <div class="control-group">
+                    <h4>Seed Infusion</h4>
+                    <div class="seed-options">
+                        <div class="seed-chip" onclick="selectSeed(this, '#e8f5e9')">Wildflowers 🌸</div>
+                        <div class="seed-chip" onclick="selectSeed(this, '#f1f8e9')">Culinary Herbs 🌿</div>
+                        <div class="seed-chip" onclick="selectSeed(this, '#fff3e0')">Bee Friendly 🐝</div>
+                        <div class="seed-chip" onclick="selectSeed(this, '#ffebee')">Tomatoes 🍅</div>
+                    </div>
+                </div>
+
+                <!-- Upload -->
+                <div class="control-group">
+                    <h4>Upload Brand Logo</h4>
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event)">
+                </div>
+
+                <!-- Text -->
+                <div class="control-group">
+                    <h4>Custom Text</h4>
+                    <input type="text" placeholder="e.g., Thanks for shopping!" oninput="updatePreviewText(this.value)" maxlength="30">
+                </div>
+
+                <button class="btn-order" onclick="alert('Your custom design has been saved! Our team will contact you shortly with a prototype.'); closeCustomizer();">ORDER SAMPLE PROTOTYPE</button>
+            </div>
         </div>
     </div>
 
@@ -483,14 +667,17 @@
     </nav>
 
     <!-- PRODUCT SHOWCASE MODAL -->
-    <div id="product-showcase" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto transition-opacity duration-300 flex flex-col">
-        <div class="container mx-auto px-6 py-12">
+    <div id="product-showcase" class="fixed inset-0 z-[200] flex flex-col">
+        <svg class="showcase-bg-root top-0 left-0 w-1/2 h-full" viewBox="0 0 200 400"><path d="M100,0 Q150,100 50,200 Q-50,300 100,400" /></svg>
+        <svg class="showcase-bg-root bottom-0 right-0 w-1/2 h-full" viewBox="0 0 200 400"><path d="M100,0 Q50,100 150,200 Q250,300 100,400" /></svg>
+
+        <div class="container mx-auto px-6 py-12 overflow-y-auto relative z-10">
             <div class="flex justify-between items-center mb-12">
                 <div>
-                    <h2 class="text-5xl font-serif text-green-900 mb-2">Our Collection</h2>
-                    <p class="text-gray-500">Sustainable solutions for a greener tomorrow.</p>
+                    <h2 class="text-5xl font-serif text-[#F5DEB3] mb-2">Our Collection</h2>
+                    <p class="text-gray-400">Sustainable solutions for a greener tomorrow.</p>
                 </div>
-                <button onclick="toggleShowcase()" class="text-gray-500 hover:text-red-500 text-4xl transition transform hover:rotate-90">
+                <button onclick="toggleShowcase()" class="text-gray-400 hover:text-red-500 text-4xl transition transform hover:rotate-90">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -505,7 +692,7 @@
             </div>
             
             <div class="mt-16 text-center">
-                <p class="text-2xl font-serif text-gray-800 mb-6">Interested in a custom order?</p>
+                <p class="text-2xl font-serif text-gray-400 mb-6">Interested in a custom order?</p>
                 <button onclick="toggleShowcase(); document.getElementById('contact-modal').classList.remove('hidden');" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition">GET A QUOTE</button>
             </div>
         </div>
@@ -513,7 +700,33 @@
 
     <!-- SECTION 1: THE PROBLEM (SURFACE) -->
     <section id="surface" class="layer">
-        <div class="sun"></div>
+        <div class="sun"></div> 
+
+        <!-- Hanging Vines -->
+        <div class="vine" style="left: 5%; top: -30px; transform: scale(1.8);">
+            <svg viewBox="0 0 50 200" class="w-full h-auto"><path d="M25,0 Q40,50 10,100 Q-10,150 30,200" stroke="#2E7D32" stroke-width="4" fill="none"/><circle cx="10" cy="100" r="5" fill="#4CAF50"/><circle cx="30" cy="200" r="5" fill="#4CAF50"/></svg>
+        </div>
+        <div class="vine" style="left: 25%; top: -60px; animation-delay: 1.5s; transform: scale(1.5);">
+            <svg viewBox="0 0 50 250" class="w-full h-auto"><path d="M25,0 Q10,60 40,120 Q60,180 20,250" stroke="#1B5E20" stroke-width="4" fill="none"/><circle cx="40" cy="120" r="5" fill="#388E3C"/></svg>
+        </div>
+        <div class="vine" style="right: 15%; top: -40px; animation-delay: 2.2s; transform: scale(2.0);">
+            <svg viewBox="0 0 50 180" class="w-full h-auto"><path d="M25,0 Q5,40 35,90 Q55,140 15,180" stroke="#2E7D32" stroke-width="4" fill="none"/><circle cx="35" cy="90" r="5" fill="#4CAF50"/></svg>
+        </div>
+        <div class="vine" style="right: 35%; top: -70px; animation-delay: 0.5s; transform: scale(1.3);">
+            <svg viewBox="0 0 50 220" class="w-full h-auto"><path d="M25,0 Q45,50 15,110 Q5,160 35,220" stroke="#33691E" stroke-width="4" fill="none"/><circle cx="15" cy="110" r="6" fill="#689F38"/></svg>
+        </div>
+
+        <!-- Fireflies & Pollen (Doubled Quantity, Bigger, More Move) -->
+        <div class="firefly" style="top: 30%; left: 20%; --tx: 100px; --ty: -100px; animation: float-firefly 5s infinite ease-in-out;"></div>
+        <div class="firefly" style="top: 60%; left: 70%; --tx: -80px; --ty: 80px; animation: float-firefly 7s infinite ease-in-out 1s;"></div>
+        <div class="firefly" style="top: 40%; left: 50%; --tx: 90px; --ty: 60px; animation: float-firefly 6s infinite ease-in-out 2s;"></div>
+        <div class="firefly" style="top: 70%; left: 10%; --tx: -50px; --ty: -120px; animation: float-firefly 8s infinite ease-in-out 0.5s;"></div>
+        <div class="firefly" style="top: 15%; left: 85%; --tx: -90px; --ty: 50px; animation: float-firefly 6.5s infinite ease-in-out 1.2s;"></div>
+        <div class="firefly" style="top: 85%; left: 45%; --tx: 70px; --ty: -70px; animation: float-firefly 5.5s infinite ease-in-out 2.5s;"></div>
+        
+        <div class="pollen" style="top: 20%; left: 40%; animation: float-pollen 10s infinite linear;"></div>
+        <div class="pollen" style="top: 50%; left: 10%; animation: float-pollen 12s infinite linear 2s;"></div>
+        <div class="pollen" style="top: 80%; left: 60%; animation: float-pollen 15s infinite linear 5s;"></div>
 
         <div class="absolute top-[20%] left-[5%] z-20 w-[40%]" id="intro-text">
             <h1 class="text-5xl md:text-7xl text-gray-800 mb-6 drop-shadow-sm text-left">Packaging that <br>Lives On.</h1>
@@ -525,18 +738,16 @@
             <div class="falling-box" style="right: 10%; left: auto; animation-delay: 0.2s;"></div>
             <div class="falling-box" style="right: 25%; left: auto; animation-delay: 1.5s;"></div>
             <div class="falling-box" style="right: 40%; left: auto; animation-delay: 0.8s;"></div>
-            <div class="falling-box" style="right: 30%; left: auto; animation-delay: 2.2s;"></div>
-            <div class="falling-box" style="right: 15%; left: auto; animation-delay: 3.5s;"></div>
             
-            <div class="building" style="height: 180px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+            <div class="building" style="height: 240px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
             <div class="home"></div>
-            <div class="building building-tall" style="height: 240px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
-             <div class="building" style="height: 160px; background: #607D8B;"><div class="window"></div><div class="window"></div><div class="window"></div></div>
+            <div class="building building-tall" style="height: 320px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+             <div class="building" style="height: 200px; background: #607D8B;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
             <div class="home"></div>
-            <div class="building building-tall" style="height: 280px; width: 90px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
-             <div class="building" style="height: 140px;"><div class="window"></div><div class="window"></div></div>
+            <div class="building building-tall" style="height: 360px; width: 110px;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+             <div class="building" style="height: 180px;"><div class="window"></div><div class="window"></div><div class="window"></div></div>
             <div class="home"></div>
-            <div class="building" style="height: 200px; background: #455A64;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
+            <div class="building" style="height: 260px; background: #455A64;"><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div><div class="window"></div></div>
         </div>
 
         <!-- The Trash Hill -->
@@ -551,40 +762,246 @@
         </div>
         
         <div class="grass-cap"></div>
-        <div class="scroll-down"><i class="fas fa-chevron-down text-2xl"></i></div>
-    </section>
 
-    <!-- SECTION 2, 3, 4, etc... (Same structure as before) -->
-    <section id="underground-mix" class="layer">
-        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path class="root-path" id="root-path-1" d="M50,0 C50,20 40,30 45,50 C50,70 60,80 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-1b" d="M50,0 C55,15 65,25 60,40 C55,60 45,70 50,90" style="opacity:0.5; stroke-width: 2" vector-effect="non-scaling-stroke"/></svg>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl w-full z-10 mx-auto px-6 py-20">
-            <div class="order-2 md:order-1 relative h-64 md:h-auto"><div class="debris absolute top-0 left-10 text-gray-400 text-4xl"><i class="fas fa-box-open"></i></div><div class="debris absolute top-20 right-20 text-gray-500 text-2xl"><i class="fas fa-recycle"></i></div><div class="debris absolute bottom-10 left-1/3 text-stone-400 text-3xl"><i class="fas fa-leaf"></i></div><div class="debris absolute top-1/2 right-10 text-gray-400 text-xl opacity-50"><i class="fas fa-wine-bottle"></i></div></div>
-            <div class="order-1 md:order-2 text-left text-white opacity-0 transition-opacity duration-1000 fade-in-trigger"><h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3]">Enriched Soil, Not Landfill.</h2><p class="text-lg leading-relaxed text-gray-200">Standard packaging lingers for centuries. Root Rise packaging is infused with mycelium and native seeds. When discarded, it doesn't just disappear—it feeds the earth.</p><div class="mt-6 flex items-center space-x-4"><div class="w-12 h-12 rounded-full bg-[#F5DEB3] text-brown-900 flex items-center justify-center font-bold"><i class="fas fa-seedling text-[#5D4037]"></i></div><span class="text-[#F5DEB3] font-semibold">Mulch Transitioning</span></div></div>
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down text-2xl"></i>
         </div>
     </section>
 
+    <!-- SECTION 2: BREAKING DOWN (MULCH) -->
+    <section id="underground-mix" class="layer">
+        <!-- Underground Fireflies -->
+        <div class="firefly" style="top: 20%; left: 15%; --tx: 80px; --ty: -80px; animation: float-firefly 6s infinite ease-in-out;"></div>
+        <div class="firefly" style="top: 50%; left: 85%; --tx: -60px; --ty: 60px; animation: float-firefly 7s infinite ease-in-out 1s;"></div>
+        <div class="pollen" style="top: 40%; left: 30%; animation: float-pollen 14s infinite linear;"></div>
+
+        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path class="root-path" id="root-path-1" d="M50,0 C50,20 40,30 45,50 C50,70 60,80 50,100" vector-effect="non-scaling-stroke"/>
+            <path class="root-path" id="root-path-1b" d="M50,0 C55,15 65,25 60,40 C55,60 45,70 50,90" style="opacity:0.5; stroke-width: 2" vector-effect="non-scaling-stroke"/>
+        </svg>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl w-full z-10 mx-auto px-6 py-20">
+            <div class="order-2 md:order-1 relative h-64 md:h-auto">
+                <div class="debris absolute top-0 left-10 text-gray-400 text-4xl"><i class="fas fa-box-open"></i></div>
+                <div class="debris absolute top-20 right-20 text-gray-500 text-2xl"><i class="fas fa-recycle"></i></div>
+                <div class="debris absolute bottom-10 left-1/3 text-stone-400 text-3xl"><i class="fas fa-leaf"></i></div>
+                <div class="debris absolute top-1/2 right-10 text-gray-400 text-xl opacity-50"><i class="fas fa-wine-bottle"></i></div>
+            </div>
+            <div class="order-1 md:order-2 text-left text-white opacity-0 transition-opacity duration-1000 fade-in-trigger">
+                <h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3]">Enriched Soil, Not Landfill.</h2>
+                <p class="text-lg leading-relaxed text-gray-200">
+                    Standard packaging lingers for centuries. Root Rise packaging is infused with mycelium and native seeds. When discarded, it doesn't just disappear—it feeds the earth.
+                </p>
+                <div class="mt-6 flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-full bg-[#F5DEB3] text-brown-900 flex items-center justify-center font-bold"><i class="fas fa-seedling text-[#5D4037]"></i></div>
+                    <span class="text-[#F5DEB3] font-semibold">Mulch Transitioning</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: WHO WE ARE -->
     <section id="who-we-are">
-        <div class="max-w-4xl mx-auto z-10 fade-in-trigger"><div class="mb-6 flex justify-center text-[#F5DEB3] text-5xl"><i class="fas fa-users-cog"></i></div><h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3] font-serif">Who We Are</h2><p class="text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto">We are a team of design students passionate about sustainability. Our goal is to improve biodiversity by cleverly utilizing human habits of littering. Instead of fighting the inevitable, we design for it—turning waste into opportunities for life to flourish.</p><div class="mt-8 flex justify-center gap-4"><div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div><div class="w-16 h-1 bg-[#4CAF50] rounded-full"></div><div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div></div></div>
+        <!-- Section Fireflies -->
+        <div class="firefly" style="top: 10%; left: 80%; --tx: -100px; --ty: 100px; animation: float-firefly 8s infinite ease-in-out;"></div>
+        <div class="firefly" style="top: 60%; left: 10%; --tx: 80px; --ty: -80px; animation: float-firefly 6.5s infinite ease-in-out 1.5s;"></div>
+
+        <div class="max-w-4xl mx-auto z-10 fade-in-trigger">
+            <div class="mb-6 flex justify-center text-[#F5DEB3] text-5xl">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <h2 class="text-4xl md:text-5xl mb-6 text-[#F5DEB3] font-serif">Who We Are</h2>
+            <p class="text-xl text-gray-200 leading-relaxed max-w-3xl mx-auto">
+                We are a team of design students passionate about sustainability. Our goal is to improve biodiversity by cleverly utilizing human habits of littering. Instead of fighting the inevitable, we design for it—turning waste into opportunities for life to flourish.
+            </p>
+            <div class="mt-8 flex justify-center gap-4">
+                <div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div>
+                <div class="w-16 h-1 bg-[#4CAF50] rounded-full"></div>
+                <div class="w-16 h-1 bg-[#F5DEB3] rounded-full"></div>
+            </div>
+        </div>
     </section>
 
+    <!-- NEW SECTION: GLOBAL IMPACT -->
     <section id="industry-impact">
-        <div class="max-w-6xl mx-auto z-10 w-full"><div class="text-center mb-12 fade-in-trigger"><h2 class="text-4xl md:text-5xl mb-4 text-[#F5DEB3] font-serif">Global Adoption</h2><p class="text-xl text-gray-300">Industries are shifting. The future of packaging is smart, alive, and circular.</p></div><div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in-trigger"><div class="stat-card text-center"><div class="text-5xl text-[#4CAF50] mb-4"><i class="fas fa-chart-line"></i></div><h3 class="text-3xl font-bold text-white mb-2">250%</h3><p class="text-gray-300">Growth in Bio-Packaging Demand</p></div><div class="stat-card text-center"><div class="text-5xl text-[#81C784] mb-4"><i class="fas fa-globe-americas"></i></div><h3 class="text-3xl font-bold text-white mb-2">120+</h3><p class="text-gray-300">Countries Banning Single-Use Plastics</p></div><div class="stat-card text-center"><div class="text-5xl text-[#F5DEB3] mb-4"><i class="fas fa-hand-holding-heart"></i></div><h3 class="text-3xl font-bold text-white mb-2">85%</h3><p class="text-gray-300">Consumers Prefer Sustainable Brands</p></div></div></div>
+        <!-- Impact Fireflies -->
+        <div class="pollen" style="top: 10%; left: 50%; animation: float-pollen 10s infinite linear;"></div>
+        
+        <div class="max-w-6xl mx-auto z-10 w-full">
+            <div class="text-center mb-12 fade-in-trigger">
+                <h2 class="text-4xl md:text-5xl mb-4 text-[#F5DEB3] font-serif">Global Adoption</h2>
+                <p class="text-xl text-gray-300">Industries are shifting. The future of packaging is smart, alive, and circular.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in-trigger">
+                <div class="stat-card text-center">
+                    <div class="text-5xl text-[#4CAF50] mb-4"><i class="fas fa-chart-line"></i></div>
+                    <h3 class="text-3xl font-bold text-white mb-2">250%</h3>
+                    <p class="text-gray-300">Growth in Bio-Packaging Demand</p>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-5xl text-[#81C784] mb-4"><i class="fas fa-globe-americas"></i></div>
+                    <h3 class="text-3xl font-bold text-white mb-2">120+</h3>
+                    <p class="text-gray-300">Countries Banning Single-Use Plastics</p>
+                </div>
+                <div class="stat-card text-center">
+                    <div class="text-5xl text-[#F5DEB3] mb-4"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h3 class="text-3xl font-bold text-white mb-2">85%</h3>
+                    <p class="text-gray-300">Consumers Prefer Sustainable Brands</p>
+                </div>
+            </div>
+        </div>
     </section>
 
+    <!-- NEW SECTION: REVIEWS -->
+    <section id="reviews">
+        <div class="max-w-6xl mx-auto z-10 w-full text-center fade-in-trigger">
+            <h2 class="text-4xl md:text-5xl mb-12 text-[#F5DEB3] font-serif">Community Roots</h2>
+            
+            <div class="review-container">
+                <div class="review-card">
+                    <img src="https://i.pravatar.cc/150?img=32" alt="User" class="review-avatar mx-auto">
+                    <div class="review-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 italic mb-4">"I threw the packaging in my garden compost and 3 weeks later I had basil sprouting! Absolutely genius design."</p>
+                    <h4 class="font-bold text-[#3E2723]">- Sarah Jenkins</h4>
+                </div>
+
+                <div class="review-card">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="User" class="review-avatar mx-auto">
+                    <div class="review-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="text-gray-600 italic mb-4">"My customers love unboxing their orders now. It's not just waste anymore, it's a gift to the planet. Highly recommend."</p>
+                    <h4 class="font-bold text-[#3E2723]">- Mark D.</h4>
+                </div>
+
+                <div class="review-card">
+                    <img src="https://i.pravatar.cc/150?img=5" alt="User" class="review-avatar mx-auto">
+                    <div class="review-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 italic mb-4">"The mushroom inserts are surprisingly sturdy. Better than Styrofoam and smells like rain and earth. Love it!"</p>
+                    <h4 class="font-bold text-[#3E2723]">- Emily R.</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: PURE SOIL (ROOTS) -->
     <section id="underground-pure" class="layer">
-        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path class="root-path" id="root-path-2" d="M50,0 C40,10 20,30 30,50 C40,70 50,60 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-2a" d="M50,20 C60,30 80,40 70,60 C60,80 55,90 50,100" vector-effect="non-scaling-stroke"/><path class="root-path" id="root-path-2b" d="M30,50 C20,60 10,70 15,90" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/><path class="root-path" id="root-path-2c" d="M70,60 C80,70 90,80 85,95" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/></svg>
-        <div class="text-center max-w-3xl z-10 mx-auto px-6 py-20 opacity-0 transition-opacity duration-1000 fade-in-trigger"><h2 class="text-4xl md:text-6xl mb-8 text-[#F5DEB3]">From Waste to Roots.</h2><p class="text-xl text-gray-300 mb-10">As the packaging dissolves, our embedded seed technology activates. The soil becomes cleaner, enriched by the biodegradable materials, providing a healthy foundation for new life.</p><div class="grid grid-cols-3 gap-8 text-center"><div><h3 class="text-3xl font-bold text-[#4CAF50]">100%</h3><p class="text-sm uppercase tracking-widest mt-2">Biodegradable</p></div><div><h3 class="text-3xl font-bold text-[#4CAF50]">0%</h3><p class="text-sm uppercase tracking-widest mt-2">Toxins</p></div><div><h3 class="text-3xl font-bold text-[#4CAF50]">Native</h3><p class="text-sm uppercase tracking-widest mt-2">Seed Varieties</p></div></div></div>
+        <!-- Deep Soil Fireflies -->
+        <div class="firefly" style="top: 15%; left: 60%; --tx: -60px; --ty: 40px; animation: float-firefly 6.5s infinite ease-in-out;"></div>
+        <div class="firefly" style="top: 85%; left: 20%; --tx: 80px; --ty: -100px; animation: float-firefly 8.5s infinite ease-in-out 1.5s;"></div>
+
+        <svg class="root-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path class="root-path" id="root-path-2" d="M50,0 C40,10 20,30 30,50 C40,70 50,60 50,100" vector-effect="non-scaling-stroke"/>
+            <path class="root-path" id="root-path-2a" d="M50,20 C60,30 80,40 70,60 C60,80 55,90 50,100" vector-effect="non-scaling-stroke"/>
+            <path class="root-path" id="root-path-2b" d="M30,50 C20,60 10,70 15,90" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/>
+            <path class="root-path" id="root-path-2c" d="M70,60 C80,70 90,80 85,95" vector-effect="non-scaling-stroke" style="stroke-width: 2;"/>
+        </svg>
+
+        <div class="text-center max-w-3xl z-10 mx-auto px-6 py-20 opacity-0 transition-opacity duration-1000 fade-in-trigger">
+            <h2 class="text-4xl md:text-6xl mb-8 text-[#F5DEB3]">From Waste to Roots.</h2>
+            <p class="text-xl text-gray-300 mb-10">
+                As the packaging dissolves, our embedded seed technology activates. The soil becomes cleaner, enriched by the biodegradable materials, providing a healthy foundation for new life.
+            </p>
+            <div class="grid grid-cols-3 gap-8 text-center">
+                <div>
+                    <h3 class="text-3xl font-bold text-[#4CAF50]">100%</h3>
+                    <p class="text-sm uppercase tracking-widest mt-2">Biodegradable</p>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold text-[#4CAF50]">0%</h3>
+                    <p class="text-sm uppercase tracking-widest mt-2">Toxins</p>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold text-[#4CAF50]">Native</h3>
+                    <p class="text-sm uppercase tracking-widest mt-2">Seed Varieties</p>
+                </div>
+            </div>
+        </div>
     </section>
 
+    <!-- SECTION 4: REBIRTH & CONTACT -->
     <section id="rebirth" class="layer">
-        <div class="text-center mb-4 z-20 opacity-0 fade-in-trigger transition-opacity duration-1000"><h2 class="text-4xl md:text-5xl text-white">The Cycle Complete</h2><p class="text-green-200 mt-2">Your package has arrived.</p></div>
-        <div class="relative z-10 mt-10"><div class="plant-sprout" id="final-plant"><svg viewBox="0 0 100 100" class="w-full h-full overflow-visible"><path d="M50,100 Q50,50 50,30" stroke="#4CAF50" stroke-width="4" fill="none" /><path d="M50,50 Q20,40 20,20 Q40,20 50,50" fill="#66BB6A" /><path d="M50,40 Q80,30 80,10 Q60,10 50,40" fill="#81C784" /><circle cx="50" cy="20" r="8" fill="#FFF176" /></svg></div><div class="box-container" id="package-box"><div class="box"><div class="face front"><i class="fas fa-recycle opacity-50"></i></div><div class="face back"></div><div class="face right"></div><div class="face left"></div><div class="face top"></div><div class="face bottom"></div></div></div></div>
-        <div class="mt-20 z-20 flex flex-col md:flex-row items-center gap-6"><button onclick="toggleContact()" class="btn-grow cursor-pointer">Start Eco Journey</button><button onclick="toggleShowcase()" class="bg-purple-600 text-white padding-15px-40px px-10 py-4 rounded-full font-semibold tracking-wide transition-all duration-300 shadow-lg hover:bg-purple-700 hover:-translate-y-1 uppercase">Product Showcase</button></div>
-        <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center"><div class="bg-white text-gray-800 p-8 rounded-lg max-w-md w-full m-4 relative"><button onclick="toggleContact()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button><h3 class="text-3xl font-serif text-green-800 mb-4">Get in Touch</h3><p class="mb-6 text-gray-600">Ready to switch to Root Rise packaging? Send us a note.</p><form class="space-y-4" onsubmit="event.preventDefault(); alert('Thank you! We will reach out shortly.'); toggleContact();"><input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"><input type="email" placeholder="Company Email" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"><textarea placeholder="Tell us about your packaging needs" rows="3" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"></textarea><button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 font-bold transition">SEND MESSAGE</button></form></div></div>
-        <footer class="absolute bottom-0 w-full text-center p-4 text-gray-500 text-xs">&copy; 2023 Root Rise Inc. All Rights Reserved.</footer>
+        <!-- Rebirth Fireflies -->
+        <div class="firefly" style="top: 10%; left: 30%; --tx: 100px; --ty: 100px; animation: float-firefly 7.5s infinite ease-in-out;"></div>
+        <div class="firefly" style="top: 90%; left: 10%; --tx: 60px; --ty: 60px; animation: float-firefly 8.5s infinite ease-in-out 2s;"></div>
+        
+        <div class="text-center mb-4 z-20 opacity-0 fade-in-trigger transition-opacity duration-1000">
+            <h2 class="text-4xl md:text-5xl text-white">The Cycle Complete</h2>
+            <p class="text-green-200 mt-2">Your package has arrived.</p>
+        </div>
+
+        <div class="relative z-10 mt-10">
+            <!-- The Main Plant -->
+            <div class="plant-sprout" id="final-plant">
+                 <svg viewBox="0 0 100 100" class="w-full h-full overflow-visible">
+                     <!-- Stem -->
+                     <path d="M50,100 Q50,50 50,30" stroke="#4CAF50" stroke-width="4" fill="none" />
+                     <!-- Leaves -->
+                     <path d="M50,50 Q20,40 20,20 Q40,20 50,50" fill="#66BB6A" />
+                     <path d="M50,40 Q80,30 80,10 Q60,10 50,40" fill="#81C784" />
+                     <!-- Flower/Bud -->
+                     <circle cx="50" cy="20" r="8" fill="#FFF176" />
+                 </svg>
+            </div>
+
+            <!-- The Main Box -->
+            <div class="box-container" id="package-box">
+                <div class="box">
+                    <div class="face front"><i class="fas fa-recycle opacity-50"></i></div>
+                    <div class="face back"></div>
+                    <div class="face right"></div>
+                    <div class="face left"></div>
+                    <div class="face top"></div>
+                    <div class="face bottom"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="action-buttons" class="mt-20 z-20 flex flex-col md:flex-row items-center gap-6">
+            <button onclick="toggleContact()" class="btn-grow cursor-pointer">
+                Start Eco Journey
+            </button>
+            <!-- NEW BUTTON -->
+            <button onclick="openCustomizer()" class="btn-action">
+                GET GROWING <i class="fas fa-seedling ml-2"></i>
+            </button>
+            <button onclick="toggleShowcase()" class="bg-purple-600 text-white padding-15px-40px px-10 py-4 rounded-full font-semibold tracking-wide transition-all duration-300 shadow-lg hover:bg-purple-700 hover:-translate-y-1 uppercase">
+                Product Showcase
+            </button>
+        </div>
+        
+        <!-- Contact Modal (Existing) -->
+        <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden flex items-center justify-center">
+            <!-- ... existing modal content ... -->
+            <div class="bg-white text-gray-800 p-8 rounded-lg max-w-md w-full m-4 relative">
+                <button onclick="toggleContact()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <h3 class="text-3xl font-serif text-green-800 mb-4">Get in Touch</h3>
+                <p class="mb-6 text-gray-600">Ready to switch to Root Rise packaging? Send us a note.</p>
+                <form class="space-y-4" onsubmit="event.preventDefault(); alert('Thank you! We will reach out shortly.'); toggleContact();">
+                    <input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500">
+                    <input type="email" placeholder="Company Email" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500">
+                    <textarea placeholder="Tell us about your packaging needs" rows="3" class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-green-500"></textarea>
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 font-bold transition">SEND MESSAGE</button>
+                </form>
+            </div>
+        </div>
+        
+        <footer class="absolute bottom-0 w-full text-center p-4 text-gray-500 text-xs">
+            &copy; 2023 Root Rise Inc. All Rights Reserved.
+        </footer>
     </section>
 
-    <div id="mini-boxes-container" class="absolute top-0 left-0 w-full h-full pointer-events-none z-30 overflow-hidden"></div>
+    <!-- Mini Boxes Container: Moved to body level for full page positioning -->
+    <div id="mini-boxes-container" class="absolute top-0 left-0 w-full h-full pointer-events-none z-30 overflow-hidden">
+        <!-- Mini boxes will be injected here by JavaScript -->
+    </div>
 
     <script>
         // Toggle Functions
@@ -595,10 +1012,73 @@
 
         function toggleShowcase() {
             const showcase = document.getElementById('product-showcase');
-            showcase.classList.toggle('hidden');
+            showcase.classList.toggle('active');
         }
 
-        // --- CUTTER INTERACTION LOGIC (FIXED) ---
+        // --- CUSTOMIZER LOGIC ---
+        function openCustomizer() {
+            document.getElementById('customizer-modal').classList.add('active');
+        }
+
+        function closeCustomizer() {
+            document.getElementById('customizer-modal').classList.remove('active');
+        }
+
+        function setPackagingType(type, btn) {
+            // Update UI Buttons
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Toggle 3D Models
+            const box = document.getElementById('preview-box');
+            const mailer = document.getElementById('preview-mailer');
+
+            if (type === 'box') {
+                box.classList.remove('hidden');
+                mailer.classList.add('hidden');
+            } else {
+                box.classList.add('hidden');
+                mailer.classList.remove('hidden');
+            }
+        }
+
+        function selectSeed(chip, color) {
+            document.querySelectorAll('.seed-chip').forEach(c => c.classList.remove('selected'));
+            chip.classList.add('selected');
+            
+            // Apply subtle tint to packaging faces to represent seeds
+            const faces = document.querySelectorAll('.c-face, .m-face');
+            faces.forEach(face => {
+                // Keep base color but blend with seed tint
+                face.style.backgroundColor = color;
+                face.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E\")"; // Re-apply noise
+            });
+        }
+
+        function updatePreviewText(text) {
+            document.getElementById('box-text-preview').innerText = text;
+            document.getElementById('mailer-text-preview').innerText = text;
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const boxImg = document.getElementById('box-logo-preview');
+                    const mailerImg = document.getElementById('mailer-logo-preview');
+                    
+                    boxImg.src = e.target.result;
+                    mailerImg.src = e.target.result;
+                    
+                    boxImg.classList.remove('hidden');
+                    mailerImg.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- CUTTER INTERACTION LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
             const cutterHandle = document.getElementById('cutter-handle');
             const cutProgressLine = document.getElementById('cut-progress-line');
@@ -719,20 +1199,37 @@
                     };
                     wrapper.style.pointerEvents = 'auto';
 
-                    const minTop = surfaceHeight + 100; 
-                    const maxTop = totalHeight - 300;
+                    // Smart Positioning: Based on Sections instead of whole body
+                    // Identify sections to place boxes
+                    const sections = [
+                        document.getElementById('underground-mix'),
+                        document.getElementById('who-we-are'),
+                        document.getElementById('industry-impact'),
+                        document.getElementById('reviews'),
+                        document.getElementById('underground-pure')
+                    ];
                     
-                    const verticalPos = Math.random() * (maxTop - minTop) + minTop;
+                    // Distribute boxes among sections
+                    const targetSection = sections[i % sections.length];
+                    if (!targetSection) continue;
+
+                    const rect = targetSection.getBoundingClientRect();
+                    // Calculate top relative to document
+                    const sectionTop = rect.top + window.scrollY;
+                    
+                    const verticalPos = sectionTop + Math.random() * (rect.height - 100);
                     const side = Math.random() > 0.5 ? 'left' : 'right';
-                    const horizontalOffset = Math.random() * 15; 
+                    const horizontalOffset = 2 + Math.random() * 8; // 2-10% margin
 
                     wrapper.style.position = 'absolute';
                     wrapper.style.top = `${verticalPos}px`;
                     
                     if (side === 'left') {
                         wrapper.style.left = `${horizontalOffset}%`;
+                        wrapper.style.right = 'auto';
                     } else {
                         wrapper.style.right = `${horizontalOffset}%`;
+                        wrapper.style.left = 'auto';
                     }
                     
                     const randomScale = 0.6 + Math.random() * 0.5;
@@ -770,6 +1267,7 @@
             const fadeElements = document.querySelectorAll('.fade-in-trigger');
             const boxContainer = document.getElementById('package-box');
             const navbar = document.getElementById('navbar');
+            const actionButtons = document.getElementById('action-buttons');
 
             // Randomize debris position slightly
             debris.forEach(d => {
@@ -830,12 +1328,14 @@
                     }
                 });
 
-                // 4. Box Opening Animation
+                // 4. Box Opening Animation & Button Landing
                 const boxRect = boxContainer.getBoundingClientRect();
                 if (boxRect.top < windowHeight * 0.6) {
                     boxContainer.classList.add('open');
+                    actionButtons.classList.add('landed');
                 } else {
                     boxContainer.classList.remove('open');
+                    actionButtons.classList.remove('landed');
                 }
             });
         }
